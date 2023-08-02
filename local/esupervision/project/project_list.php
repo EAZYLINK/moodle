@@ -34,7 +34,7 @@ $PAGE->set_pagelayout('course');
 $PAGE->set_title('Project List');
 $PAGE->set_heading('Project List');
 
-// echo '<link rel="stylesheet" type="text/css" href="styles.css">';
+echo '<link rel="stylesheet" type="text/css" href="../styles.css">';
 // Include the Moodle header
 echo $OUTPUT->header();
 

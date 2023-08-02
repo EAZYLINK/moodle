@@ -23,6 +23,7 @@ $CFG->dataroot  = 'C:/xampp/moodledata';
 $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 02777;
+$CFG->debug = "DEBUG_DEVELOPER";
 
 require_once(__DIR__ . '/lib/setup.php');
 
