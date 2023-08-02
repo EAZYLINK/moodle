@@ -27,8 +27,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'local_esupervision';
-$string['esupervision:addinstance'] = 'Add a new esupervision block';
-$string['esupervision:myaddinstance'] = 'Add a new esupervision block to Dashboard';
+$string['pluginname'] = 'E-Supervisor';
 $string['error_rquired'] = 'This field is required.';
 $string['error_min_length'] = 'The minimum length for this field is %d characters.';
+$string['dashboard'] = 'local_esupervision';
+$string['admin_dashboard'] = 'Admin Dashboard';
+$string['supervisor_dashboard'] = 'Supervisor Dashboard';
+$string['student_dashboard'] = 'Student Dashboard';

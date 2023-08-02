@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
+require_once(__DIR__.'/../../../config.php');
 require_login();
 
 // Define the page context and set the page heading.
@@ -31,6 +31,7 @@ $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_heading(get_string('pluginname', 'local_esupervision'));
 $PAGE->set_title(get_string('supervisor_dashboard', 'local_esupervision'));
+$PAGE->set_url('/local/esupervision/supervisor/index.php');
 
 // Add navigation link to the sidebar.
 $PAGE->navbar->add(get_string('supervisor_dashboard', 'local_esupervision'), "$CFG->wwwroot/local/esupervision/supervisor/index.php");

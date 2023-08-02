@@ -29,7 +29,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2023021703.00;
+$plugin->version  = 2023021704.00;
 $plugin->requires = 2023021701;
 $plugin->component = 'local_esupervision';
 
