@@ -46,12 +46,12 @@ echo '<h1>Project List</h1>';
 
 if (!empty($projects)) {
     echo '<table class="project-list">';
-    echo '<tr><th>Project Name</th><th>Description</th><th>Assigned Supervisor</th><th>Status</th></tr>';
+    echo '<tr><th>SN</th><th>Project ID</th><th>Project Name</th><th>Description</th><th>Assigned Supervisor</th><th>Status</th></tr>';
 
     foreach ($projects as $project) {
         echo '<tr>';
         echo '<td>' . $project->id . '</td>';
-        echo '<td>' . $project->projectId . '</td>';
+        echo '<td>' . $project->project_id . '</td>';
         echo '<td>' . $project->name . '</td>';
         echo '<td>' . $project->description . '</td>';
         echo '<td>' . $project->supervisor . '</td>';

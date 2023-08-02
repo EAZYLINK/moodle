@@ -38,6 +38,7 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title('Create Project List');
 $PAGE->set_heading('Create Project List');
+$PAGE->set_url("/local/esupervision/project/create_project.php");
 
 echo '<link rel="stylesheet" type="text/css" href="styles.css">';
 // Include the Moodle header
@@ -50,11 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $projectSupervisor = $_POST['project_supervisor'];
     $projectStatus = $_POST['project_status'];
 
-    // Perform data validation if required
-
-    // Save the project to the database (replace with your own logic)
-    // For example, insert the project details into the 'mdl_projects' table
-    create_project($projectName, $projectDescription, $projectSupervisor, $projectStatus);
+    $newProjectId = create_project($projectName, $projectDescription, $projectSupervisor, $projectStatus);
+    if ($newProjectId->project_id) {
+        echo '<p>Project created successfully. Project ID: ' . $newProjectId->project_id. '</p>';
+    } else {
+        echo '<p>Failed to create the project.</p>';
+    }
 
 }
 

@@ -41,6 +41,7 @@ function create_project($projectName, $projectDescription, $assignedSupervisor, 
     $newProject->project_id = $project_id;
     $newProject->id = $auto_increment_id;
     $DB->update_record($table, $newProject);
+    return $newProject;
 }
 
 function generate_project_id($prefix, $auto_increment_id) {

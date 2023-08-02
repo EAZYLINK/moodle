@@ -4,8 +4,8 @@
         <!-- Table for storing project information -->
         <TABLE NAME="esupervision_projects" COMMENT="Table for storing project information">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
-                <FIELD NAME="project_id" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Project ID"/>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="project_id" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="" COMMENT="Project ID"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Project name"/>
                 <FIELD NAME="description" TYPE="text" LENGTH="TEXT_UNLIMITED" NOTNULL="true" COMMENT="Project description"/>
                 <FIELD NAME="supervisor" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Assigned supervisor"/>
@@ -18,9 +18,9 @@
         <!-- Table for storing supervisor information -->
         <TABLE NAME="esupervision_supervisors" COMMENT="Table for storing supervisor information">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor name"/>
-                <FIELD NAME="supervisor_id" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor ID"/>
+                <FIELD NAME="supervisor_id" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="" COMMENT="Supervisor ID"/>
                 <FIELD NAME="email" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor email"/>
                 <FIELD NAME="department" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Department"/>
                 <FIELD NAME="institution" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Institution"/>
@@ -32,7 +32,7 @@
         <!-- Table for storing student information -->
         <TABLE NAME="esupervision_students" COMMENT="Table for storing student information">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Student name"/>
                 <FIELD NAME="student_matno" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Student Mat No"/>
                 <FIELD NAME="email" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Student email"/>
@@ -46,8 +46,8 @@
         <!-- Table for storing feedback information -->
         <TABLE NAME="esupervision_feedback" COMMENT="Table for storing feedback information">
             <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
-                <FIELD NAME="project_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" COMMENT="Foreign key to projects table"/>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="project_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="" COMMENT="Foreign key to projects table"/>
                 <FIELD NAME="student_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" COMMENT="Foreign key to students table"/>
                 <FIELD NAME="feedback_text" TYPE="text" LENGTH="TEXT_UNLIMITED" NOTNULL="true" COMMENT="Feedback text"/>
             </FIELDS>
