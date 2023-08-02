@@ -14,19 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_moodlecheck;
+
 /**
- * Version details.
+ * A fixture to verify various phpdoc tags in a tests location.
  *
- * @package    local_adminer
- * @author     Andreas Grabs <moodle@grabs-edv.de>
- * @copyright  Andreas Grabs
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_moodlecheck
+ * @copyright 2018 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @codeCoverageIgnore
  */
-
-defined('MOODLE_INTERNAL') || die;
-
-$plugin->version  = 2021051702;
-$plugin->release = '4.8.1-2 (2022112700 mdl-39)';
-$plugin->requires = 2019111200;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_adminer';
+class phpdoc_phpunit_coverage_ignored {
+}

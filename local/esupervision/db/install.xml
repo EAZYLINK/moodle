@@ -5,6 +5,7 @@
         <TABLE NAME="esupervision_projects" COMMENT="Table for storing project information">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
+                <FIELD NAME="projectId" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Project ID"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Project name"/>
                 <FIELD NAME="description" TYPE="text" LENGTH="TEXT_UNLIMITED" NOTNULL="true" COMMENT="Project description"/>
                 <FIELD NAME="supervisor" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Assigned supervisor"/>
@@ -19,7 +20,10 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor name"/>
+                <FIELD NAME="supervisorId" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor ID"/>
                 <FIELD NAME="email" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor email"/>
+                <FIELD NAME="department" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Department"/>
+                <FIELD NAME="institution" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Institution"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -30,7 +34,10 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" AUTO_INCREMENT="true" COMMENT="Primary key"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Student name"/>
+                <FIELD NAME="student_Matno" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Student Mat No"/>
                 <FIELD NAME="email" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Student email"/>
+                <FIELD NAME="department" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Student Department"/>
+                <FIELD NAME="institution" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Student Institution"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

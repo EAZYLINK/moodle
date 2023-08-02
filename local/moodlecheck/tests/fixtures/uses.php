@@ -15,18 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Fixture file with use statements, none of which should trigger warnings, despite containing "function" and "const".
  *
- * @package    local_adminer
- * @author     Andreas Grabs <moodle@grabs-edv.de>
- * @copyright  Andreas Grabs
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     local_moodlecheck
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+use these\dont\actually\need\to\point\to\anything;
+use function ns\fun_1;
+use function ns\fun_2 as alias;
+use const ns\CONST_1;
+use const ns\CONST_2 as ALIAS;
 
-$plugin->version  = 2021051702;
-$plugin->release = '4.8.1-2 (2022112700 mdl-39)';
-$plugin->requires = 2019111200;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_adminer';
+use {
+    function ns\fun_3,
+    const ns\const_3
+};
+
+use function ns\fun_1?>

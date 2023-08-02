@@ -194,6 +194,7 @@ class local_moodlecheck_file {
      *
      * Returns 3 arrays (classes, interfaces and traits) of objects where each element represents an artifact:
      * ->type : token type of the artifact (T_CLASS, T_INTERFACE, T_TRAIT)
+     * ->typestring : type of the artifact as a string ('class', 'interface', 'trait')
      * ->name : name of the artifact
      * ->tagpair : array of two elements: id of token { for the class and id of token } (false if not found)
      * ->phpdocs : phpdocs for this artifact (instance of local_moodlecheck_phpdocs or false if not found)
@@ -221,23 +222,45 @@ class local_moodlecheck_file {
                     if ($this->previous_nonspace_token($tid) == 'new') {
                         // This looks to be an anonymous class.
 
-                        if ($this->next_nonspace_token($tid) == '{') {
+                        $tpid = $tid; // Let's keep the original $tid and use own for anonymous searches.
+                        if ($this->next_nonspace_token($tpid) == '(') {
+                            // It may be an anonymous class with parameters, let's skip them
+                            // by advancing till we find the corresponding bracket closing token.
+                            $level = 0; // To control potential nesting of brackets within the params.
+                            while ($tpid = $this->next_nonspace_token($tpid, true)) {
+                                if ($this->tokens[$tpid][1] == '(') {
+                                    $level++;
+                                }
+                                if ($this->tokens[$tpid][1] == ')') {
+                                    $level--;
+                                    // We are back to level 0, we are done (have walked over all params).
+                                    if ($level === 0) {
+                                        $tpid = $tpid;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($this->next_nonspace_token($tpid) == '{') {
                             // An anonymous class in the format `new class {`.
                             continue;
                         }
 
-                        if ($this->next_nonspace_token($tid) == 'extends') {
+                        if ($this->next_nonspace_token($tpid) == 'extends') {
                             // An anonymous class in the format `new class extends otherclasses {`.
                             continue;
                         }
 
-                        if ($this->next_nonspace_token($tid) == 'implements') {
+                        if ($this->next_nonspace_token($tpid) == 'implements') {
                             // An anonymous class in the format `new class implements someinterface {`.
                             continue;
                         }
                     }
                     $artifact = new stdClass();
                     $artifact->type = $artifacts[$this->tokens[$tid][0]];
+                    $artifact->typestring = $this->tokens[$tid][1];
+
                     $artifact->tid = $tid;
                     $artifact->name = $this->next_nonspace_token($tid);
                     $artifact->phpdocs = $this->find_preceeding_phpdoc($tid);
@@ -277,6 +300,17 @@ class local_moodlecheck_file {
     }
 
     /**
+     * Like {@see get_artifacts()}, but returns classes, interfaces and traits in a single flat array.
+     *
+     * @return stdClass[]
+     * @see get_artifacts()
+     */
+    public function get_artifacts_flat(): array {
+        $artifacts = $this->get_artifacts();
+        return array_merge($artifacts[T_CLASS], $artifacts[T_INTERFACE], $artifacts[T_TRAIT]);
+    }
+
+    /**
      * Returns all classes found in file
      *
      * Returns array of objects where each element represents a class:
@@ -296,7 +330,9 @@ class local_moodlecheck_file {
      * $function->tid : token id of the token 'function'
      * $function->name : name of the function
      * $function->phpdocs : phpdocs for this function (instance of local_moodlecheck_phpdocs or false if not found)
+     * TODO: Delete this because it's not used anymore (2023). See #97
      * $function->class : containing class object (false if this is not a class method)
+     * $function->owner : containing artifact object (class, interface, trait, or false if this is not a method)
      * $function->fullname : name of the function with class name (if applicable)
      * $function->accessmodifiers : tokens like static, public, protected, abstract, etc.
      * $function->tagpair : array of two elements: id of token { for the function and id of token } (false if not found)
@@ -311,6 +347,12 @@ class local_moodlecheck_file {
             $this->functions = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_USE) {
+                    // Skip the entire use statement, to avoid interpreting "use function" as a function.
+                    $tid = $this->end_of_statement($tid);
+                    continue;
+                }
+
                 if ($this->tokens[$tid][0] == T_FUNCTION) {
                     $function = new stdClass();
                     $function->tid = $tid;
@@ -322,8 +364,9 @@ class local_moodlecheck_file {
                     }
                     $function->phpdocs = $this->find_preceeding_phpdoc($tid);
                     $function->class = $this->is_inside_class($tid);
-                    if ($function->class !== false) {
-                        $function->fullname = $function->class->name . '::' . $function->name;
+                    $function->owner = $this->is_inside_artifact($tid);
+                    if ($function->owner !== false) {
+                        $function->fullname = $function->owner->name . '::' . $function->name;
                     }
                     $function->accessmodifiers = $this->find_access_modifiers($tid);
                     if (!in_array(T_ABSTRACT, $function->accessmodifiers)) {
@@ -340,21 +383,53 @@ class local_moodlecheck_file {
                     }
                     $function->arguments = array();
                     foreach ($function->argumentstokens as $argtokens) {
-                        $type = null;
+                        // If the token is completely empty then it's not an argument. This happens, for example, with
+                        // trailing commas in parameters, allowed since PHP 8.0 and break_tokens_by() returns it that way.
+                        if (empty($argtokens)) {
+                            continue;
+                        }
+                        $possibletypes = [];
                         $variable = null;
                         $splat = false;
+
                         for ($j = 0; $j < count($argtokens); $j++) {
-                            if ($argtokens[$j][0] == T_VARIABLE) {
-                                $variable = ($splat) ? '...'.$argtokens[$j][1] : $argtokens[$j][1];
-                                break;
-                            } else if ($argtokens[$j][0] != T_WHITESPACE &&
-                                    $argtokens[$j][0] != T_ELLIPSIS && $argtokens[$j][1] != '&') {
-                                $type = $argtokens[$j][1];
-                            } else if ($argtokens[$j][0] == T_ELLIPSIS) {
-                                // Variadic function.
-                                $splat = true;
+                            switch ($argtokens[$j][0]) {
+                                // Skip any whitespace, or argument visibility.
+                                case T_WHITESPACE:
+                                case T_PUBLIC:
+                                case T_PROTECTED:
+                                case T_PRIVATE:
+                                    continue 2;
+                                case T_VARIABLE:
+                                    // The variale name, adding in the vardiadic if required.
+                                    $variable = ($splat) ? '...' . $argtokens[$j][1] : $argtokens[$j][1];
+                                    continue 2;
+                                case T_ELLIPSIS:
+                                    // For example ...$example
+                                    // Variadic function.
+                                    $splat = true;
+                                    continue 2;
                             }
+                            switch ($argtokens[$j][1]) {
+                                case '|':
+                                    // Union types.
+                                case '&':
+                                    // Return by reference.
+                                    continue 2;
+                                case '?':
+                                    // Nullable type.
+                                    $possibletypes[] = 'null';
+                                    continue 2;
+                                case '=':
+                                    // Default value.
+                                    $j = count($argtokens);
+                                    continue 2;
+                            }
+
+                            $possibletypes[] = $argtokens[$j][1];
                         }
+
+                        $type = implode('|', $possibletypes);
 
                         // PHP 8 treats namespaces as single token. So we are going to undo this here
                         // and continue returning only the final part of the namespace. Someday we'll
@@ -433,6 +508,12 @@ class local_moodlecheck_file {
             $this->constants = array();
             $this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_USE) {
+                    // Skip the entire use statement, to avoid interpreting "use const" as a constant.
+                    $tid = $this->end_of_statement($tid);
+                    continue;
+                }
+
                 if ($this->tokens[$tid][0] == T_CONST && !$this->is_inside_function($tid)) {
                     $variable = new stdClass;
                     $variable->tid = $tid;
@@ -552,6 +633,22 @@ class local_moodlecheck_file {
     }
 
     /**
+     * Checks if the token with id $tid in inside some artifact (class, interface, or trait).
+     *
+     * @param int $tid
+     * @return stdClass|false containing artifact or false if this is not a member
+     */
+    public function is_inside_artifact(int $tid) {
+        $artifacts = $this->get_artifacts_flat();
+        foreach ($artifacts as $artifact) {
+            if ($artifact->boundaries[0] <= $tid && $artifact->boundaries[1] >= $tid) {
+                return $artifact;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Checks if the token with id $tid in inside some function or class method
      *
      * @param int $tid
@@ -617,7 +714,7 @@ class local_moodlecheck_file {
     /**
      * Returns the first token which is not whitespace before the token with id $tid
      *
-     * Also returns false if no meaningful token found till the beggining of file
+     * Also returns false if no meaningful token found till the beginning of file
      *
      * @param int $tid
      * @param bool $returnid
@@ -636,6 +733,24 @@ class local_moodlecheck_file {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the next semicolon or close tag following $tid, or the last token of the file, whichever comes first.
+     *
+     * @param int $tid starting token
+     * @return int index of the next semicolon or close tag following $tid, or the last token of the file, whichever
+     *                 comes first
+     */
+    public function end_of_statement($tid) {
+        for (; $tid < $this->tokenscount; $tid++) {
+            if ($this->tokens[$tid][1] == ";" || $this->tokens[$tid][0] == T_CLOSE_TAG) {
+                // Semicolons and close tags (?&gt;) end statements.
+                return $tid;
+            }
+        }
+        // EOF also ends statements.
+        return $tid;
     }
 
     /**
@@ -671,6 +786,7 @@ class local_moodlecheck_file {
     public function find_preceeding_phpdoc($tid) {
         $tokens = &$this->get_tokens();
         $modifiers = $this->find_access_modifiers($tid);
+
         for ($i = $tid - 1; $i >= 0; $i--) {
             if ($this->is_whitespace_token($i)) {
                 if ($this->is_multiline_token($i) > 1) {
@@ -967,6 +1083,9 @@ class local_moodlecheck_phpdocs {
         'Then',
         'When',
         // PHPUnit tags.
+        'codeCoverageIgnore',
+        'codeCoverageIgnoreStart',
+        'codeCoverageIgnoreEnd',
         'covers',
         'coversDefaultClass',
         'coversNothing',
@@ -1022,6 +1141,9 @@ class local_moodlecheck_phpdocs {
         'Then',
         'When',
         // PHPUnit tags.
+        'codeCoverageIgnore',
+        'codeCoverageIgnoreStart',
+        'codeCoverageIgnoreEnd',
         'covers',
         'coversDefaultClass',
         'coversNothing',
@@ -1248,8 +1370,25 @@ class local_moodlecheck_phpdocs {
      */
     public function get_params($tag = 'param', $splitlimit = 3) {
         $params = array();
+
         foreach ($this->get_tags($tag) as $token) {
             $params[] = preg_split('/\s+/', trim($token), $splitlimit); // AKA 'type $name multi-word description'.
+        }
+
+        foreach ($params as $key => $param) {
+            if (strpos($param[0], '?') !== false) {
+                $param[0] = str_replace('?', 'null|', $param[0]);
+            }
+            $types = explode('|', $param[0]);
+            $types = array_map(function($type): string {
+                // Normalise array types such as `string[]` to `array`.
+                if (substr($type, -2) == '[]') {
+                    return 'array';
+                }
+                return $type;
+            }, $types);
+            sort($types);
+            $params[$key][0] = implode('|', $types);
         }
         return $params;
     }

@@ -29,10 +29,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2023021700.00;
+$plugin->version  = 2023021702.00;
 $plugin->requires = 2023021700;
 $plugin->component = 'local_esupervision';
 
-if (file_exists(__DIR__ . '/db/install.php')) {
-    require_once(__DIR__ . '/db/install.php');
+if (file_exists(__DIR__ . '/db/install.xml')) {
+    require_once(__DIR__ . '/db/install.xml');
 }

@@ -41,19 +41,25 @@ function local_moodlecheck_packagespecified(local_moodlecheck_file $file) {
     $phpdocs = $file->find_file_phpdocs();
     if ($phpdocs && count($phpdocs->get_tags('package', true))) {
         // Package is specified on file level, it is automatically inherited.
-        return array();
+        return [];
     }
-    foreach ($file->get_classes() as $object) {
-        if (!$object->phpdocs || !count($object->phpdocs->get_tags('package', true))) {
-            $errors[] = array('line' => $file->get_line_number($object->boundaries[0]),
-                    'object' => 'class '. $object->name);
+
+    foreach ($file->get_artifacts_flat() as $artifact) {
+        if (!$artifact->phpdocs || !count($artifact->phpdocs->get_tags('package', true))) {
+            $errors[] = [
+                'line' => $file->get_line_number($artifact->boundaries[0]),
+                'object' => "$artifact->typestring $artifact->name",
+            ];
         }
     }
+
     foreach ($file->get_functions() as $object) {
-        if ($object->class === false) {
+        if ($object->owner === false) {
             if (!$object->phpdocs || !count($object->phpdocs->get_tags('package', true))) {
-                $errors[] = array('line' => $file->get_line_number($object->boundaries[0]),
-                        'object' => 'function '. $object->fullname);
+                $errors[] = [
+                    'line' => $file->get_line_number($object->boundaries[0]),
+                    'object' => 'function ' . $object->fullname,
+                ];
             }
         }
     }
@@ -68,6 +74,7 @@ function local_moodlecheck_packagespecified(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_packagevalid(local_moodlecheck_file $file) {
     $errors = array();
+
     $allowedpackages = local_moodlecheck_package_names($file);
     foreach ($file->get_all_phpdocs() as $phpdoc) {
         foreach ($phpdoc->get_tags('package') as $package) {
@@ -201,12 +208,14 @@ function &local_moodlecheck_get_categories($forceoffline = false) {
             $allcategories = array();
             $filecontent = false;
             if (!$forceoffline) {
-                $filecontent = @file_get_contents("https://docs.moodle.org/dev/Core_APIs");
+                $filecontent = @file_get_contents("https://moodledev.io/docs/apis");
             }
             if (empty($filecontent)) {
                 $filecontent = file_get_contents($CFG->dirroot . '/local/moodlecheck/rules/coreapis.txt');
             }
-            preg_match_all('|<span\s*.*\s*class="mw-headline".*>.*API\s*\((.*)\)\s*</span>|i', $filecontent, $matches);
+            // Remove newlines, easier for the regular expression.
+            $filecontent = preg_replace('|[\r\n]|', '', $filecontent);
+            preg_match_all('|<h3[^>]+>\s*.+?API\s*\(([^\)]+)\)\s*<a|i', $filecontent, $matches);
             foreach ($matches[1] as $match) {
                 $allcategories[] = trim(strip_tags(strtolower($match)));
             }

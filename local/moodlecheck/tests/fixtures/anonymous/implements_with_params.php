@@ -15,18 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Unit tests for a fixture file in moodlecheck.
  *
- * @package    local_adminer
- * @author     Andreas Grabs <moodle@grabs-edv.de>
- * @copyright  Andreas Grabs
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_moodlecheck
+ * @copyright 2023 onwards Eloy Lafuente (stronk7) {@link https://stronk7.com}
+ * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2021051702;
-$plugin->release = '4.8.1-2 (2022112700 mdl-39)';
-$plugin->requires = 2019111200;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'local_adminer';
+return new class (10, $units, new something(), $end) implements someinterface {
+};

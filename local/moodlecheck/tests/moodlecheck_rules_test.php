@@ -69,6 +69,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         // Let's verify we have received a xml with file top element and 2 children.
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
+
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(2, $found->length);
 
@@ -199,6 +200,80 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that constructor property promotion is supported.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_phpdoc_constructor_property_promotion() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_constructor_property_promotion.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringNotContainsString('constructor_property_promotion::__construct has incomplete parameters list', $result);
+    }
+
+    /**
+     * Verify that constructor property promotion is supported.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_phpdoc_union_types() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_method_union_types.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringNotContainsString(
+            'constructor_property_promotion::__construct has incomplete parameters list',
+            $result
+         );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_oneline has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_oneline_multi has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_multiline has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_union_order_does_not_matter has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_union_containing_array has incomplete parameters list',
+            $result
+        );
+    }
+
+    /**
      * Verify various phpdoc tags in tests directories.
      *
      * @covers ::local_moodlecheck_phpdocsinvalidtag
@@ -230,6 +305,32 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringNotContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
         $this->assertStringNotContainsString('Incorrect path for phpdocs tag @group', $result);
         $this->assertStringNotContainsString('@deprecated', $result);
+    }
+
+    /**
+     * Verify phpunit codeCoverageIgnore can be applied to an entire file.
+     *
+     * @covers ::local_moodlecheck_phpdocsinvalidtag
+     */
+    public function test_phpdoc_phpunit_coverage_ignored_for_file() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_phpunit_coverage_ignored.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 5 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+
+        // Also verify various bits by content.
+        $this->assertStringContainsString('packagevalid', $result);
     }
 
     /**
@@ -269,6 +370,36 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringNotContainsString('{@link https://moodle.org}', $result);
         $this->assertStringNotContainsString('{@see has_capability}', $result);
         $this->assertStringNotContainsString('ba8by}', $result);
+    }
+
+    /**
+     * Verify the package tag is required for class/trait/interface/global scope functions.
+     *
+     * @covers ::local_moodlecheck_packagespecified
+     */
+    public function test_phpdoc_tags_packagespecified() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_packagespecified.php', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 4 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query('//file/error[@source="packagespecified"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(4, $found->length);
+
+        // Also verify various bits by content.
+        $this->assertStringContainsString('Package is not specified for class missingclass', $result);
+        $this->assertStringContainsString('Package is not specified for interface missinginterface', $result);
+        $this->assertStringContainsString('Package is not specified for trait missingtrait', $result);
+        $this->assertStringContainsString('Package is not specified for function missingfunction', $result);
+        $this->assertStringNotContainsString('packaged', $result);
+        $this->assertStringNotContainsString('somemethod', $result);
     }
 
     /**
@@ -349,6 +480,18 @@ class moodlecheck_rules_test extends \advanced_testcase {
                 "{$rootpath}/extendsandimplements.php",
                 false,
             ],
+            'return new class (with params) {' => [
+                "{$rootpath}/anonymous_with_params.php",
+                false,
+            ],
+            'return new class (with params) extends parentclass {' => [
+                "{$rootpath}/extends_with_params.php",
+                false,
+            ],
+            'return new class (with params) implements someinterface {' => [
+                "{$rootpath}/implements_with_params.php",
+                false,
+            ],
             '$value = new class {' => [
                 "{$rootpath}/assigned.php",
                 false,
@@ -401,6 +544,30 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that method parameters are correctly interpreted no matter the definition style.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_functionsdocumented_method_multiline() {
+        $file = __DIR__ . "/fixtures/phpdoc_method_multiline.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query('//file/error[@source="functionarguments"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(0, $found->length); // All examples in fixtures are ok.
+    }
+
+
+    /**
      * Verify that top-level methods without docs are errors but methods in subclasses without docs are warnings.
      *
      * @covers ::local_moodlecheck_functionsdocumented
@@ -430,12 +597,36 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that "use function" statements are ignored.
+     *
+     * @covers ::local_moodlecheck_functionsdocumented
+     * @covers ::local_moodlecheck_constsdocumented
+     */
+    public function test_functionsdocumented_constsdocumented_ignore_uses() {
+        $file = __DIR__ . "/fixtures/uses.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query('//file/error[@source="functionsdocumented" or @source="constsdocumented"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(0, $found->length);
+    }
+
+    /**
      * Verify that `variablesdocumented` correctly detects PHPdoc on different kinds of properties.
      *
      * @covers ::local_moodlecheck_variablesdocumented
      * @covers \local_moodlecheck_file::get_variables
      */
-    public function test_variablesdocumented() {
+    public function test_variables_and_constants_documented() {
         $file = __DIR__ . "/fixtures/phpdoc_properties.php";
 
         global $PAGE;
@@ -449,6 +640,8 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
         $xpath = new \DOMXpath($xmlresult);
 
+        // Verify that the undocumented variables are reported.
+
         $found = $xpath->query('//file/error[@source="variablesdocumented"]');
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(4, $found->length);
@@ -458,5 +651,61 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringContainsString('$undocumented2', $found->item(1)->getAttribute("message"));
         $this->assertStringContainsString('$undocumented3', $found->item(2)->getAttribute("message"));
         $this->assertStringContainsString('$undocumented4', $found->item(3)->getAttribute("message"));
+
+        // Verify that the undocumented constants are reported.
+
+        $found = $xpath->query('//file/error[@source="constsdocumented"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(2, $found->length);
+
+        // The PHPdocs of the other properties should be detected correctly.
+        $this->assertStringContainsString('UNDOCUMENTED_CONSTANT1', $found->item(0)->getAttribute("message"));
+        $this->assertStringContainsString('UNDOCUMENTED_CONSTANT2', $found->item(1)->getAttribute("message"));
+
+        // Verify that the @const tag is reported as invalid.
+
+        $found = $xpath->query('//file/error[@source="phpdocsinvalidtag"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+
+        $this->assertStringContainsString('Invalid phpdocs tag @const used', $found->item(0)->getAttribute("message"));
+    }
+
+    /**
+     * Verify that the text format shown information about the severity of the problem (error vs warning)
+     *
+     * @covers \local_moodlecheck_renderer
+     */
+    public function test_text_format_errors_and_warnings() {
+        $file = __DIR__ . "/fixtures/error_and_warning.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'text');
+
+        $this->assertStringContainsString('tests/fixtures/error_and_warning.php', $result);
+        $this->assertStringContainsString('2: Empty line found after PHP open tag (warning)', $result);
+        $this->assertStringContainsString('11: Class someclass is not documented (error)', $result);
+        $this->assertStringContainsString('12: Function someclass::somefunc is not documented (warning)', $result);
+    }
+
+    /**
+     * Verify that the html format shown information about the severity of the problem (error vs warning)
+     *
+     * @covers \local_moodlecheck_renderer
+     */
+    public function test_html_format_errors_and_warnings() {
+        $file = __DIR__ . "/fixtures/error_and_warning.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'html');
+
+        $this->assertStringContainsString('tests/fixtures/error_and_warning.php</span>', $result);
+        $this->assertStringContainsString('<b>2</b>: Empty line found after PHP open tag (warning)', $result);
+        $this->assertStringContainsString('<b>11</b>: Class <b>someclass</b> is not documented (error)', $result);
+        $this->assertStringContainsString('<b>12</b>: Function <b>someclass::somefunc</b> is not documented (warning)', $result);
     }
 }

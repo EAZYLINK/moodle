@@ -77,7 +77,7 @@ function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
     }
     if ($file->find_file_phpdocs() === false) {
         $tokens = &$file->get_tokens();
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $i < 90; $i++) {
             if (isset($tokens[$i]) && !in_array($tokens[$i][0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT))) {
                 return array(array('line' => $file->get_line_number($i)));
             }
@@ -123,7 +123,7 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
                             stripos($function->name, 'setup') === 0 ||
                             stripos($function->name, 'teardown') === 0);
 
-            $isinsubclass = $function->class && ($function->class->hasextends || $function->class->hasimplements);
+            $isinsubclass = $function->owner && ($function->owner->hasextends || $function->owner->hasimplements);
 
             if (!($isphpunitfile && $istestmethod)) {
                 $error = [
@@ -421,6 +421,7 @@ function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
     $errors = array();
+
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs !== false) {
             $documentedarguments = $function->phpdocs->get_params();
@@ -434,6 +435,23 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     $expectedparam = (string)$function->arguments[$i][1];
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
+
+                    if (strpos($expectedtype, '|' ) !== false) {
+                        $types = explode('|', $expectedtype);
+                        sort($types);
+                        $expectedtype = implode('|', $types);
+                    }
+                    if (strpos($documentedtype, '|' ) !== false) {
+                        $types = explode('|', $documentedtype);
+                        sort($types);
+                        $documentedtype = implode('|', $types);
+                    }
+
+                    $typematch = $expectedtype === $documentedtype;
+                    $parammatch = $expectedparam === $documentedparam;
+                    if ($typematch && $parammatch) {
+                        continue;
+                    }
 
                     // Documented types can be a collection (| separated).
                     foreach (explode('|', $documentedtype) as $documentedtype) {
