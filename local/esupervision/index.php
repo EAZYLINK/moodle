@@ -15,22 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * English language pack for block mycourse.
+ * lib file.
  *
- * - each user can currently have their own page (cloned from system and then customised)
- * - only the user can see their own dashboard
- * - users can add any blocks they want
- *
- * @package    local
- * @subpackage esupervision
- * @category   block
+ * @package    core
+ * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'esupervision';
-$string['error_rquired'] = 'This field is required.';
-$string['error_min_length'] = 'The minimum length for this field is %d characters.';
-$string['dashboard'] = 'local_esupervision';
-$string['admin_dashboard'] = 'Admin Dashboard';
-$string['supervisor_dashboard'] = 'Supervisor Dashboard';
-$string['student_dashboard'] = 'Student Dashboard';
+ defined('MOODLE_INTERNAL') || die();
+
+ // Include necessary files
+ require_once(__DIR__ . '/../../config.php');
+
+ 

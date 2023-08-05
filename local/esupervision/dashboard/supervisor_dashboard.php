@@ -22,8 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once('lib.php');
+ global $CFG, $DB, $PAGE, $USER;
+
+require_once(__DIR__. '/../../../config.php');
+require_once($CFG->libdir.'/admninlib.php');
 require_login();
 
 // Check if the current user is a supervisor (you can customize the role name)

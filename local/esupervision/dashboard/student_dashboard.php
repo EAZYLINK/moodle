@@ -22,8 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+ global $CFG, $DB, $PAGE, $USER;
+
 require_once(__DIR__. '/../../../config.php');
-require_once('lib.php');
+require_once($CFG->libdir.'/admninlib.php');
 require_login();
 
 // Set up the page context and layout

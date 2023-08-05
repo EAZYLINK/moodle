@@ -19,8 +19,8 @@
         <TABLE NAME="esupervision_supervisors" COMMENT="Table for storing supervisor information">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor name"/>
                 <FIELD NAME="supervisor_id" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="" COMMENT="Supervisor ID"/>
+                <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor name"/>
                 <FIELD NAME="email" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor email"/>
                 <FIELD NAME="department" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Department"/>
                 <FIELD NAME="institution" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Institution"/>
@@ -60,8 +60,8 @@
         <TABLE NAME="esupervision_chat_message" COMMENT="Table for your plugin">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="field1" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT=""/>
-                <FIELD NAME="field2" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="sender" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT=""/>
+                <FIELD NAME="receiver" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="0"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
