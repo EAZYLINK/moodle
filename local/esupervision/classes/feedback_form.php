@@ -22,11 +22,13 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package course
  */
-
+require_once("$CFG->libdir/formslib.php");
  class local_esupervision_feedback_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
-        $mform->addElement('header', 'feedback_header', 'Esupervision Feedback Form');
+        $mform->addElement('text', 'title', 'Feedback Title');
+        $mform->setType('text', PARAM_NOTAGS);
+        $mform->addRule('title', 'required', 'required', null, 'client');
         $mform->addElement('textarea', 'feedback_comments', 'Feedback Comments:', ['rows' => '5', 'cols' => '50']);
         $mform->addRule('feedback_comments', null, 'required', null, 'client');
         $mform->addElement('submit', 'submitbtn', 'Submit Feedback');     

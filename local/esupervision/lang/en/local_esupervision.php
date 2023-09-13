@@ -30,7 +30,11 @@
 $string['pluginname'] = 'esupervision';
 $string['error_rquired'] = 'This field is required.';
 $string['error_min_length'] = 'The minimum length for this field is %d characters.';
-$string['dashboard'] = 'local_esupervision';
+$string['home_page'] = 'Home Page';
 $string['admin_dashboard'] = 'Admin Dashboard';
 $string['supervisor_dashboard'] = 'Supervisor Dashboard';
 $string['student_dashboard'] = 'Student Dashboard';
+$string['student_list'] = 'Student List';
+$string['project_list'] = 'Project List';
+$string['no_projects'] = 'No projects found.';
+$string['modulename'] = "Project";

@@ -10,22 +10,11 @@ $PAGE->set_title('Chat Interface');
 $PAGE->set_heading('Chat Interface');
 $PAGE->set_url($CFG->wwwroot . '/local/esupervision/chat/chat.php');
 
-// Output the header
-echo '<link rel="stylesheet" type="text/css" href="../styles.css">';
 echo $OUTPUT->header();
+$data = array(
+    'name'=> "Chat Forum"
+);
+echo $OUTPUT->render_from_template('local_esupervision/chat', $data);
 $PAGE->requires->js(new moodle_url('/local/esupervision/chat/script.js'));
-?>
 
-<div id="chat-container">
-  <div id="chat-messages"></div>
-  <div id="chat-input">
-    <input type="text" id="message-input" placeholder="Type your message...">
-    <button id="send-button">Send</button>
-  </div>
-</div>
-
-<?php
-
-// Output the footer
 echo $OUTPUT->footer();
-?>

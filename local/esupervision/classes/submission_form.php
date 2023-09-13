@@ -23,35 +23,29 @@
  * @package course
  */
 
- require_once('../../config.php');
- require_once('../../lib/formslib.php');
+ require_once(__DIR__ . '/../../../config.php');
+ require_once(__DIR__ . '/../../../lib/formslib.php');
  class local_esupervision_submission_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
-        $mform->addElement('header', 'project_submision_header', 'Projection Submision Form');
         $mform->addElement('textarea', 'project_description', 'Project Description:', ['rows' => '5', 'cols' => '50']);
         $mform->addRule('project_description', null, 'required', null, 'client');
-
         $mform->addElement('filepicker', 'project_document', 'Project Docoment:', null, ['maxbytes' => 1000000, 'accepted_types' => '*']);
-        $mform->addRule('project_document', get_string('error_rquired', 'local_esupervision'), 'required', null, 'client');
-        $mform->addElement('submit', 'submitbtn', 'Submit project');     
-        $mform->addElement('cancel', 'cancelbtn', 'Cancel');           
+        $mform->setType('project_document', PARAM_FILE);
+        $mform->addRule('project_document', 'required', 'required', null, 'client');
+        $this->add_action_buttons($cancel = true, $submitlabel='submit project');          
     }
     
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if (empty($data['project_description'])) {
             $errors['project_description'] = get_string('error_required', 'local_esupervision');
-        }
-        $filemanager = $this->_form->get_file_manager('project_document');
-        if (!$filemanager->file_exists()) {
-            $errors['project_document'] = get_string('error_required', 'local_esupervision');
+        } elseif (!empty($files['project_document']['name'])) {
+            $fileinfo = $files['project_document'];
+            if ($fileinfo['error'] != UPLOAD_ERR_OK) {
+                $errors['project_document'] = "failed to upload document";
+            }
         }
         return $errors;
-    }
-
-    public function submision($data, $files) {
-        $filemanager = $this->_form->get_file_manager('project_document');
-        $filemanager->move_file($filemanager->get_new_filename(), '/', false);
     }
  }

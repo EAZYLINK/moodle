@@ -202,6 +202,7 @@ profile_view($user, $usercontext);
 // TODO WORK OUT WHERE THE NAV BAR IS!
 echo $OUTPUT->header();
 echo '<div class="userprofile">';
+echo '<a href="' . $CFG->wwwroot . '/local/esupervision/dashboard/supervisor.php">Supervisor Dashboard</a>';
 
 $hiddenfields = [];
 if (!has_capability('moodle/user:viewhiddendetails', $usercontext)) {

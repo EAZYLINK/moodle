@@ -22,11 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- global $CFG, $DB, $PAGE, $USER;
 
 require_once(__DIR__. '/../../../config.php');
-require_once($CFG->libdir.'/admninlib.php');
+require_once(__DIR__. '/../lib.php');
 require_login();
+
+global $CFG, $DB, $PAGE, $USER;
 
 // Check if the current user is a supervisor (you can customize the role name)
 if (!is_siteadmin() && !has_capability('local/esupervision:supervisor', context_system::instance())) {
@@ -34,38 +35,23 @@ if (!is_siteadmin() && !has_capability('local/esupervision:supervisor', context_
     redirect(new moodle_url('/'));
 }
 
-// Set up the page context and layout
+$PAGE->set_pagelayout('mydashboard');
 $PAGE->set_context(context_system::instance());
-$PAGE->set_pagelayout('standard');
-$PAGE->set_title('Supervisor Dashboard');
-$PAGE->set_heading('Supervisor Dashboard');
+// $PAGE->set_title(get_string('supervisor_dashboard', 'local_esupervision'));
+$PAGE->set_heading(get_string('supervisor_dashboard', 'local_esupervision'));
+$PAGE->set_url('/local/esupervision/dashboard/supervisor.php');
+$PAGE->navbar->add("dashboard");
+
 
 echo $OUTPUT->header();
 
-// Get the current user ID (supervisor ID)
 $supervisorId = $USER->id;
+$projects = get_supervisor_assigned_students($supervisorId);
+$supervisorName = $USER->firstname;
+$data = array(
+    'supervisor_name'=> $supervisorName
+);
+$project_list['assignedStudent'] = array_values($projects);
+echo $OUTPUT->render_from_template('local_esupervision/supervisor', $data, $project_list);
 
-// Retrieve projects assigned to the supervisor
-$projects = get_supervisor_projects($supervisorId);
-
-// Display supervisor dashboard
-echo '<h1>Hello, ' . fullname($USER) . '!</h1>';
-echo '<h2>Your Assigned Students:</h2>';
-
-if (!empty($projects)) {
-    echo '<ul>';
-    foreach ($projects as $project) {
-        echo '<li>';
-        echo '<strong>' . $project->student_name . '</strong>';
-        echo '<br>Project Description: ' . $project->description . '<br>';
-        echo 'Project Status: ' . $project->status;
-        echo '</li>';
-    }
-    echo '</ul>';
-} else {
-    echo '<p>No students assigned to your projects.</p>';
-}
-
-// Include the Moodle footer
 echo $OUTPUT->footer();
-?>

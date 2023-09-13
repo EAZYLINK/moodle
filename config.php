@@ -22,9 +22,11 @@ $CFG->wwwroot   = 'http://localhost:80';
 $CFG->dataroot  = 'C:/xampp/moodledata';
 $CFG->admin     = 'admin';
 
+
 $CFG->directorypermissions = 02777;
 
 require_once(__DIR__ . '/lib/setup.php');
+
 
 // There is no php closing tag in this file,
 // it is intentional because it prevents trailing whitespace problems!

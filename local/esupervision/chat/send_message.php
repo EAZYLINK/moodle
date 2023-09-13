@@ -25,15 +25,14 @@
 
 require_once(__DIR__. '/../../../config.php');
 require_login();
-
-// Get the message data from the AJAX request
     global $DB, $USER;
     $message = required_param('message', PARAM_TEXT);
     $data = new stdClass();
     $data->sender_id = $USER->id;
     $data->message = $message;
     $data->timestamp = time();
-    $DB->insert_record('esupervision_chat__table', $data);
+    echo $data->timestamp;
+    $DB->insert_records('esupervision_chat_message', $data);
 
     // Return a success response (you can customize this as needed)
-    echo json_encode(['status' => 'success']);
+    echo json_encode(['status' => 'success', $data]);

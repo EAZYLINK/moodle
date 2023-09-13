@@ -1,33 +1,31 @@
 // JavaScript code for sending and receiving chat messages
 $(document).ready(function () {
-    // Function to display a new chat message
-    function displayMessage(sender, message) {
-      var chatMessages = $('#chat-messages');
+async function displayMessage(sender, message) {
+      var chatMessages = $('#chat-container');
       chatMessages.append('<div><strong>' + sender + ':</strong> ' + message + '</div>');
       chatMessages.scrollTop(chatMessages.prop('scrollHeight'));
     }
   
-    // Send button click event
     $('#send-button').on('click', function () {
       var messageInput = $('#message-input');
       var message = messageInput.val().trim();
-  
+
       if (message !== '') {
-        // AJAX request to send the message to the server
         $.ajax({
-          url: '/local/esupervision/send_message.php',
+          url: '/local/esupervision/chat/send_message.php',
           type: 'POST',
           data: { message: message },
-          success: function (response) {
-            // Message sent successfully, display it in the chat
-            displayMessage('You', message);
-            messageInput.val(''); // Clear the input field
+          success: async function (response) {
+          await   displayMessage('You', message)
+            messageInput.val('')
+            console.log("sending message")
           },
+
           error: function (xhr, status, error) {
-            // Handle error
             console.error('Error sending message:', error);
           }
         });
+        return true
       }
     });
   
@@ -35,8 +33,8 @@ $(document).ready(function () {
     function checkForNewMessages() {
       // AJAX request to check for new messages from the server
       $.ajax({
-        url: '/local/esupervision/chat/get_messages.php',
-        type: 'POST',
+        url: '/local/esupervision/chat/get_message.php',
+        type: 'GET',
         success: function (response) {
           // Process the response and display new messages
           for (var i = 0; i < response.length; i++) {

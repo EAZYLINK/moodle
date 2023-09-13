@@ -25,44 +25,35 @@
  global $CFG, $DB, $PAGE, $USER;
 
 require_once(__DIR__. '/../../../config.php');
-require_once($CFG->libdir.'/admninlib.php');
+require_once(__DIR__.'/../lib.php');
 require_login();
 
 // Set up the page context and layout
 $PAGE->set_context(context_system::instance());
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('mydashboard');
+$PAGE->set_pagetype('my-index');
 $PAGE->set_title('Student Dashboard');
-$PAGE->set_heading('Student Dashboard');
+$PAGE->set_heading('');
+$PAGE->set_url('/local/esupervision/dashboard/student.php');
 
-// Include the Moodle header
 echo $OUTPUT->header();
 
 // Get the current user ID
 $userId = $USER->id;
-
-// Retrieve student-specific data (replace with your own logic)
-// For example, get projects assigned to the student
+$CFG;
 $projects = get_student_projects($userId);
+$data = array(
+    'student_name' => fullname($USER)
+);
 
-// Display student dashboard
-echo '<h1>Hello, ' . fullname($USER) . '!</h1>';
-echo '<h2>Your Projects:</h2>';
-
-if (!empty($projects)) {
-    echo '<ul>';
-    foreach ($projects as $project) {
-        echo '<li>';
-        echo '<strong>' . $project->name . '</strong>';
-        echo '<br>Description: ' . $project->description . '<br>';
-        echo 'Assigned Supervisor: ' . $project->supervisor . '<br>';
-        echo 'Status: ' . $project->status;
-        echo '</li>';
-    }
-    echo '</ul>';
-} else {
+if (empty($projects)) {
     echo '<p>No projects assigned.</p>';
+} else{
+    echo $projects->supervisor;
+    $announcement = get_announcement($projects->supervisor);
+    echo $OUTPUT->render_from_template('local_esupervision/student_dashboard', $data, $projects, $announcement);
 }
 
-// Include the Moodle footer
+
+
 echo $OUTPUT->footer();
-?>

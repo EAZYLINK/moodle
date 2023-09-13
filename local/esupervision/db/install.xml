@@ -5,7 +5,7 @@
         <TABLE NAME="esupervision_projects" COMMENT="Table for storing project information">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="project_id" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="" COMMENT="Project ID"/>
+                <FIELD NAME="project_id" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Project ID"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Project name"/>
                 <FIELD NAME="description" TYPE="text" LENGTH="TEXT_UNLIMITED" NOTNULL="true" COMMENT="Project description"/>
                 <FIELD NAME="supervisor" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Assigned supervisor"/>
@@ -19,7 +19,7 @@
         <TABLE NAME="esupervision_supervisors" COMMENT="Table for storing supervisor information">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="supervisor_id" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="" COMMENT="Supervisor ID"/>
+                <FIELD NAME="supervisor_id" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor ID"/>
                 <FIELD NAME="name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Supervisor name"/>
                 <FIELD NAME="email" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor email"/>
                 <FIELD NAME="department" TYPE="text" LENGTH="100" NOTNULL="true" COMMENT="Supervisor Department"/>
@@ -47,7 +47,7 @@
         <TABLE NAME="esupervision_feedback" COMMENT="Table for storing feedback information">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="project_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="" COMMENT="Foreign key to projects table"/>
+                <FIELD NAME="project_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" COMMENT="Foreign key to projects table"/>
                 <FIELD NAME="student_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" COMMENT="Foreign key to students table"/>
                 <FIELD NAME="feedback_text" TYPE="text" LENGTH="TEXT_UNLIMITED" NOTNULL="true" COMMENT="Feedback text"/>
             </FIELDS>
@@ -60,11 +60,25 @@
         <TABLE NAME="esupervision_chat_message" COMMENT="Table for your plugin">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="sender" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT=""/>
-                <FIELD NAME="receiver" TYPE="text" LENGTH="255" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="sender" TYPE="text" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="message" TYPE="text" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="timestamp" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Time stamp"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+                <TABLE NAME="esupervision_announcement" COMMENT="Table for announcements">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="supervisor_name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="supervisor title"/>
+                <FIELD NAME="title" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="announcement title"/>
+                <FIELD NAME="content" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="announcement content"/>
+                <FIELD NAME="timestamp" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Time stamp"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fk_supervisor" TYPE="foreign" FIELDS="supervisor_name" REFTABLE="esupervision_supervisors" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
     </TABLES>

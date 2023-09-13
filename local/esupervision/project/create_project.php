@@ -23,7 +23,7 @@
  */
 
 
- require_once(__DIR__. '/../../../config.php');
+require_once(__DIR__. '/../../../config.php');
 require_once(__DIR__ . '/../lib.php');
 // require_login(); 
 
@@ -40,8 +40,6 @@ $PAGE->set_title('Create Project List');
 $PAGE->set_heading('Create Project List');
 $PAGE->set_url("/local/esupervision/project/create_project.php");
 
-echo '<link rel="stylesheet" type="text/css" href="styles.css">';
-// Include the Moodle header
 echo $OUTPUT->header();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -53,28 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $newProjectId = create_project($projectName, $projectDescription, $projectSupervisor, $projectStatus);
     if ($newProjectId->project_id) {
-        echo '<p>Project created successfully. Project ID: ' . $newProjectId->project_id. '</p>';
+        \core\notification::add('Project created successfully!', \core\output\notification::NOTIFY_SUCCESS);
     } else {
-        echo '<p>Failed to create the project.</p>';
+        \core\notification::add('Failed to create project. Please try again.', \core\output\notification::NOTIFY_ERROR);
     }
-
 }
 
-// Display the project list creation form inside a form-container class
-echo '<div class="form-container">';
-echo '<h1>Create Project List</h1>';
-echo '<form method="POST">';
-echo '<label for="project_name">Project Name:</label>';
-echo '<input type="text" id="project_name" name="project_name" required><br>';
-echo '<label for="project_description">Project Description:</label>';
-echo '<textarea id="project_description" name="project_description" required></textarea><br>';
-echo '<label for="project_supervisor">Assigned Supervisor:</label>';
-echo '<input type="text" id="project_supervisor" name="project_supervisor" required><br>';
-echo '<label for="project_status">Status:</label>';
-echo '<input type="text" id="project_status" name="project_status" required><br>';
-echo '<input type="submit" value="Create Project">';
-echo '</form>';
-echo '</div>';
-
-// Include the Moodle footer
+$title = array(
+    "title"=> "Create Project"
+);
+echo $OUTPUT->render_from_template('local_esupervision/create_project', $title);
 echo $OUTPUT->footer();

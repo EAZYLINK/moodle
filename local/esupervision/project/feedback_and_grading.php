@@ -22,16 +22,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Display the feedback and grading form
-echo '<form action="submit_feedback.php" method="POST">';
-echo '<label for="feedback">Feedback:</label>';
-echo '<textarea name="feedback"></textarea>';
-echo '<label for="grade">Grade:</label>';
-echo '<input type="number" name="grade">';
-echo '<input type="submit" value="Submit">';
-echo '</form>';
+?>
 
-// Handle the feedback and grading submission
+<form action="submit_feedback.php" method="POST">
+<label for="feedback">Feedback:</label>
+<textarea name="feedback"></textarea>
+<label for="grade">Grade:</label>
+<input type="number" name="grade">
+<input type="submit" value="Submit">
+</form>
+
+<?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $feedback = $_POST['feedback'];
     $grade = $_POST['grade'];

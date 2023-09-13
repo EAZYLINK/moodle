@@ -21,17 +21,13 @@
  * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+require_once(__DIR__. '/../../../config.php');
+$PAGE->set_context(context_system::instance());
+$PAGE->set_pagelayout('standard');
+$PAGE->set_title('Create Project List');
+$PAGE->set_heading('Create Project List');
+$PAGE->set_url("/local/esupervision/project/create_project.php");
 
-$reportData = generate_project_supervision_reports();
+echo $OUTPUT->header();
 
-// Display the report data
-echo '<h2>Project Supervision Report</h2>';
-echo '<table>';
-echo '<tr><th>Category</th><th>Value</th></tr>';
-foreach ($reportData as $category => $value) {
-    echo '<tr>';
-    echo '<td>' . $category . '</td>';
-    echo '<td>' . $value . '</td>';
-    echo '</tr>';
-}
-echo '</table>';
+echo $OUTPUT->footer();
