@@ -27,6 +27,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['error_required'] = 'Error required';
 $string['pluginname'] = 'esupervision';
 $string['error_rquired'] = 'This field is required.';
 $string['error_min_length'] = 'The minimum length for this field is %d characters.';
@@ -37,4 +38,3 @@ $string['student_dashboard'] = 'Student Dashboard';
 $string['student_list'] = 'Student List';
 $string['project_list'] = 'Project List';
 $string['no_projects'] = 'No projects found.';
-$string['modulename'] = "Project";

@@ -15,22 +15,24 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template esupervision/project_list
+    @template local_esupervision/project_topic
 
-    Container to display project topics such as:
-    - project id
-    - project name
-    - project description
-    - project supervisor
-    - project status
+    TODO describe template project_topic
 
     Example context (json):
     {
-        "id": "PROJ-001",
-        "project name": "Water management system",
-        "project description": "A research work on the various water management systems in Nigeria",
-        "project supervisor": "Dr. Kate",
-        "Project status": "pending"
     }
 }}
 
+{{#topic}}
+<ul>
+    <li>
+        <h3>{{student_name}}</h3>
+        <p>{{topic}}</p>
+        <p>{{description}}</p>
+        <p>{{status}}</p>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">status</button>
+    </li>
+</ul>
+{{/topic}}
+```

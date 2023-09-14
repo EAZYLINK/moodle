@@ -22,16 +22,18 @@
  * This is compared against the values stored in the database to determine
  * whether upgrades should be performed (see lib/db/*.php)
  *
- * @package    esupervision
+ * @package    local_esupervision
  * @copyright  Ezekiel Nwuguru
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
+$plugin->release      = '1.0';
 $plugin->version  = 2023021709.00;
 $plugin->requires = 2023021701;
 $plugin->component = 'local_esupervision';
+$plugin->maturity     = MATURITY_STABLE;
 
 if (file_exists(__DIR__ . '/db/install.xml')) {
     require_once(__DIR__ . '/db/install.xml');

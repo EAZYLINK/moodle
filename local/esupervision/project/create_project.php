@@ -25,40 +25,30 @@
 
 require_once(__DIR__. '/../../../config.php');
 require_once(__DIR__ . '/../lib.php');
+require_once(__DIR__ . '/../classes/create_project.php'); 
 // require_login(); 
 
-// Check if the current user is an admin
-if (!is_siteadmin()) {
-    // If not an admin, redirect to the home page or show an error message
-    redirect(new moodle_url('/'));
-}
 
 // Set up the page context and layout
 $PAGE->set_context(context_system::instance());
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('incourse');
 $PAGE->set_title('Create Project List');
 $PAGE->set_heading('Create Project List');
 $PAGE->set_url("/local/esupervision/project/create_project.php");
-
 echo $OUTPUT->header();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data (replace with your form field names)
-    $projectName = $_POST['project_name'];
-    $projectDescription = $_POST['project_description'];
-    $projectSupervisor = $_POST['project_supervisor'];
-    $projectStatus = $_POST['project_status'];
+$mform = new local_esupervision_create_project_form();
 
-    $newProjectId = create_project($projectName, $projectDescription, $projectSupervisor, $projectStatus);
-    if ($newProjectId->project_id) {
-        \core\notification::add('Project created successfully!', \core\output\notification::NOTIFY_SUCCESS);
-    } else {
-        \core\notification::add('Failed to create project. Please try again.', \core\output\notification::NOTIFY_ERROR);
-    }
-}
+if($mform->is_cancelled()) {
+    \core\notification::add('Project submission cancelled', \core\output\notification::NOTIFY_WARNING);
+    $mform->display();
+} else if ($mform->get_data()) {
+    $data = $mform->get_data();
+    $newProjectId = create_project($data->name, $data->description, $data->supervisor, $data->status);
+    \core\notification::add('Project created successfully!', \core\output\notification::NOTIFY_SUCCESS);
+    $mform->display();
+  } else {
+    $mform->display();
+  }
 
-$title = array(
-    "title"=> "Create Project"
-);
-echo $OUTPUT->render_from_template('local_esupervision/create_project', $title);
 echo $OUTPUT->footer();

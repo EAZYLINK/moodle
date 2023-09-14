@@ -20,10 +20,11 @@
  *
  * @copyright 1999 Martin Dougiamas  http://dougiamas.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package course
+ * @package local_esupervision
  */
-
+require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../classes/submission_form.php'); 
+require_login();
 
  // Set up the page context and layout
 $PAGE->set_context(context_system::instance());
@@ -34,24 +35,19 @@ $PAGE->set_url("/local/esupervision/project/submit_project.php");
 
 echo $OUTPUT->header();
 
-$form = new local_esupervision_submission_form();
+$mform = new local_esupervision_submission_form();
 
-if($form->is_cancelled()) {
+if($mform->is_cancelled()) {
     \core\notification::add('Project submission cancelled', \core\output\notification::NOTIFY_WARNING);
-    $form->display();
-} else if ($form->get_data()) {
-    \core\notification::add('Project submitted successfully!', \core\output\notification::NOTIFY_SUCCESS);
-    $form->display();
-    $data = $form->get_data();
-    $filename = $form->get_new_filename('project_document');
-    $fullpath = dirname(__FILE__);
-    $override = true;
-    $success = $form->save_file('project_document', $fullpath, $override);
-    if(!$success){
-      echo "failed to save file";
-    }
-  } else {
-    $form->display();
+    $mform->display();
+} else if ($mform->get_data()) {
+    $mform->display();
+    $data = $mform->get_data();
+    
+    $context = context_system::instance();
+    $filename = $mform->get_new_filename('project_document');
+} else {
+    $mform->display();
   }
 
 echo $OUTPUT->footer();

@@ -29,8 +29,16 @@
     public function definition() {
         $mform = $this->_form;
         $mform->addElement('textarea', 'project_description', 'Project Description:', ['rows' => '5', 'cols' => '50']);
+        $mform->setType('project_description', PARAM_TEXT);
         $mform->addRule('project_description', null, 'required', null, 'client');
-        $mform->addElement('filepicker', 'project_document', 'Project Docoment:', null, ['maxbytes' => 1000000, 'accepted_types' => '*']);
+        $mform->addElement('filepicker', 'project_document', 'Project Docoment:', null,     null,
+        [
+            'subdirs' => 0,
+            'areamaxbytes' => 10485760,
+            'maxfiles' => 50,
+            'accepted_types' => ['document'],
+            'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
+        ]);
         $mform->setType('project_document', PARAM_FILE);
         $mform->addRule('project_document', 'required', 'required', null, 'client');
         $this->add_action_buttons($cancel = true, $submitlabel='submit project');          

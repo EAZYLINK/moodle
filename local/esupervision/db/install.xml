@@ -68,10 +68,10 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
         </TABLE>
-                <TABLE NAME="esupervision_announcement" COMMENT="Table for announcements">
+            <TABLE NAME="esupervision_announcement" COMMENT="Table for announcements">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
-                <FIELD NAME="supervisor_name" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="supervisor title"/>
+                <FIELD NAME="supervisor_id" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="supervisor title"/>
                 <FIELD NAME="title" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="announcement title"/>
                 <FIELD NAME="content" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="announcement content"/>
                 <FIELD NAME="timestamp" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Time stamp"/>
@@ -79,6 +79,19 @@
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
                 <KEY NAME="fk_supervisor" TYPE="foreign" FIELDS="supervisor_name" REFTABLE="esupervision_supervisors" REFFIELDS="id"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="esupervision_project_topics" COMMENT="Table for project topics">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="student_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" COMMENT="Student ID"/>
+                <FIELD NAME="topic" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="project topic"/>
+                <FIELD NAME="description" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="project description"/>
+                <FIELD NAME="timestamp" TYPE="text" LENGTH="255" NOTNULL="true" COMMENT="Time stamp"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fk-student" TYPE="foreign" FIELDS="student_id" REFTABLE="esupervision_students" REFFIELDS="id"/>
             </KEYS>
         </TABLE>
     </TABLES>

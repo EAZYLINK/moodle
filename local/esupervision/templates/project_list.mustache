@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template esupervision/project_list
+    @template local_esupervision/project_list
 
     Container to display project topics such as:
     - project id
@@ -38,20 +38,18 @@
     <tbody>
         <tr>
             <th>SN</th>
-            <th>Project ID</th>
             <th>Project Name</th>
             <th>Description</th>
             <th>Assigned Supervisor</th>
-            <th>Status</th>
+            <th>Student Name</th>
         </tr>
     {{#project}}
         <tr>
             <td>{{id}}</td>
-            <td>{{project_id}}</td>
             <td>{{name}}</td>
             <td>{{description}}</td>
-            <td>{{supervisor}}</td>
-            <td>{{status}}</td>
+            <td>{{supervisor_name}}</td>
+            <td>{{student_name}}</td>
         </tr>
     {{/project}}
     </tbody>

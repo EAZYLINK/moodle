@@ -31,9 +31,9 @@ require_login();
 // Set up the page context and layout
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('mydashboard');
-$PAGE->set_pagetype('my-index');
+// $PAGE->set_pagetype('my-index');
 $PAGE->set_title('Student Dashboard');
-$PAGE->set_heading('');
+$PAGE->set_heading('Dashboard');
 $PAGE->set_url('/local/esupervision/dashboard/student.php');
 
 echo $OUTPUT->header();
@@ -45,13 +45,17 @@ $projects = get_student_projects($userId);
 $data = array(
     'student_name' => fullname($USER)
 );
+$announcement = get_announcement($USER->idnumber);
+if (!$announcement) {
+    $announcement = 'No announcement';
+} else {
 
+    echo $OUTPUT->render_from_template('local_esupervision/view_announcement', $announcement);
+}
 if (empty($projects)) {
     echo '<p>No projects assigned.</p>';
 } else{
-    echo $projects->supervisor;
-    $announcement = get_announcement($projects->supervisor);
-    echo $OUTPUT->render_from_template('local_esupervision/student_dashboard', $data, $projects, $announcement);
+    echo $OUTPUT->render_from_template('local_esupervision/student_dashboard', $data, $projects);
 }
 
 

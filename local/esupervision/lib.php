@@ -35,24 +35,11 @@ function create_project($projectName, $projectDescription, $assignedSupervisor, 
     $newProject->description = $projectDescription;
     $newProject->supervisor = $assignedSupervisor;
     $newProject->status = $projectStatus;
-   $auto_increment_id= $DB->insert_record($table, $newProject);
-    $fixed_prefix = 'PROJ-';
-    $project_id = generate_project_id($fixed_prefix, $auto_increment_id);
-    $newProject->project_id = $project_id;
-    $newProject->id = $auto_increment_id;
-    $DB->update_record($table, $newProject);
     return $newProject;
-}
-
-function generate_project_id($prefix, $auto_increment_id) {
-    $padding_length = 3; // Set the desired length of the auto-incrementing number (e.g., 001, 002, ...)
-    $auto_increment_number = str_pad($auto_increment_id, $padding_length, '0', STR_PAD_LEFT);
-    return $prefix . $auto_increment_number;
 }
 
 function get_student_projects($userId) {
     global $DB;
-
     $table = 'mdl_esupervision_projects';
 
     // Retrieve projects based on the student's ID
@@ -65,7 +52,7 @@ function get_student_projects($userId) {
 // // Function to get projects assigned to the supervisor
 function get_supervisor_assigned_students($supervisorId) {
     global $DB;
-        $table = 'mdl_esupervision_projects';
+        $table = 'esupervision_projects';
         $table_supervisor = 'mdl_esupervision_supervisors';
         $sql1 = "SELECT * FROM $table_supervisor WHERE id = $supervisorId";
         $params = ['id' => $supervisorId];
@@ -89,7 +76,7 @@ function get_project_list() {
 
 function get_project($projectId) {
     global $DB;
-    $table = 'mdl_esupervision_projects';
+    $table = 'esupervision_projects';
 
     // Retrieve the project based on the project ID
     $sql = "SELECT * FROM { $table } WHERE id = :projectId";
@@ -98,12 +85,25 @@ function get_project($projectId) {
     return $DB->get_record_sql($sql, $params);
 }
 
-function get_announcement($supervisor_name) {
+function get_announcement($supervisor_id) {
     global $DB;
-    $table = 'mdl_esupervision_announcement';
-    $sql = "SELECT * FROM {$table} WHERE id = :supervisor_name";
-    $params = ['supervisor_name' => $supervisor_name];
-    return $DB->get_record_sql($sql, $params);
+    $table = 'esupervision_announcement';
+    $data = array(
+        'supervisor_id' => $supervisor_id
+    );
+    $announcement = $DB->get_record($table, $data);
+    return $announcement;
+}
+
+function submit_project_topic($data) {
+    global $DB;
+    $table = 'esupervision_project_topics';
+    $newTopic = new stdClass();
+    $newTopic->topic = $data->topic;
+    $newTopic->student_id = $data->student_id;
+    $newTopic->description = $data->description;
+    $project_id = $DB->insert_record($table, $newTopic);
+    return $project_id;
 }
 
 function local_esupervision_extends_navigation(global_navigation $navigation) {
