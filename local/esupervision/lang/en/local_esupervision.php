@@ -15,26 +15,47 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * English language pack for block mycourse.
+ * List of strings for the English language.
  *
- * - each user can currently have their own page (cloned from system and then customised)
- * - only the user can see their own dashboard
- * - users can add any blocks they want
- *
- * @package    local
- * @subpackage esupervision
- * @category   block
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_esupervision
+ * @copyright 2017 onwards, emeneo (www.emeneo.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['error_required'] = 'Error required';
-$string['pluginname'] = 'esupervision';
-$string['error_rquired'] = 'This field is required.';
-$string['error_min_length'] = 'The minimum length for this field is %d characters.';
-$string['home_page'] = 'Home Page';
-$string['admin_dashboard'] = 'Admin Dashboard';
-$string['supervisor_dashboard'] = 'Supervisor Dashboard';
-$string['student_dashboard'] = 'Student Dashboard';
-$string['student_list'] = 'Student List';
-$string['project_list'] = 'Project List';
-$string['no_projects'] = 'No projects found.';
+defined('MOODLE_INTERNAL') || die();
+
+$string['addcourse'] = 'Add course from template';
+$string['back'] = 'Back';
+$string['choosecategory'] = 'Please select your course category';
+$string['choosetemplate'] = 'Please choose your template';
+$string['choosetemplatebanner'] = 'Choose Template';
+$string['continue'] = 'Continue';
+$string['course_templates:edit'] = 'Edit course template';
+$string['course_templates:view'] = 'View course template';
+$string['coursename'] = 'Course name';
+$string['courseshortname'] = 'Course short name';
+$string['createfailed'] = 'There was a problem. Did you use a course name which already exist? Please try again.';
+$string['createsuccess'] = 'Create a new course successfully';
+$string['createcoursefromtemplate'] = 'Create a course from a template';
+$string['datetime'] = 'Date and time';
+$string['definesettingsbanner'] = 'Define Settings';
+$string['enddate'] = 'End date';
+$string['endtime'] = 'End time';
+$string['esupervision:edit'] = 'Esupervision:edit';
+$string['esupervision:view'] = 'Esupervision:view';
+$string['hiddencategories'] = 'Hidden categories';
+$string['inputinfo'] = 'Please enter below information';
+$string['inputinfotip'] = 'Please enter new course information';
+$string['jumpto'] = 'Jump to';
+$string['jumpto_coursepage'] = 'Course page';
+$string['jumpto_coursesettingspage'] = 'Course settings page';
+$string['location'] = 'Location';
+$string['namecategory'] = 'Category';
+$string['namecategorydescription'] = 'Please choose the category that you want to use for the course templates';
+$string['parametererror'] = 'Parameter error';
+$string['pluginname'] = 'Course templates';
+$string['privacy:metadata'] = 'The Course templates plugin does not store any personal data.';
+$string['selectcategorybanner'] = 'Select Category';
+$string['startdate'] = 'Start date';
+$string['starttime'] = 'Start time';
+$string['useastemplate'] = 'Use as template';

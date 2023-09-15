@@ -15,30 +15,401 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * lib file.
+ * Index file.
  *
- * @package    core
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_esupervision
+ * @copyright 2017 onwards, emeneo (www.emeneo.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once('lib.php');
 
- // Include necessary files
- require_once(__DIR__ . '/../../config.php');
+use local_esupervision\coursecategorieslistform;
 
-$PAGE->set_context(context_system::instance());
-$PAGE->set_url('/local/esupervision/lib.php');
-$PAGE->set_title(get_string('pluginname', 'local_esupervision'));
-$PAGE->set_heading(get_string('pluginname', 'local_esupervision'));
+require_login();
+
+global $CFG, $DB, $USER, $PAGE, $OUTPUT;
+
+$step = optional_param('step', 0, PARAM_INT);
+$cid = optional_param('cid', 0, PARAM_INT);
+$coursestatus = optional_param('status', 0, PARAM_INT);
+$courseid = optional_param('courseid', 0, PARAM_INT);
+$cateid = optional_param('cateid', $CFG->defaultrequestcategory, PARAM_INT);
+
+$params = array();
+$userid = $USER->id;  // Owner of the page.
+
+if (isset($cateid) && !empty($cateid)) {
+    $context = context_coursecat::instance($cateid);
+} else {
+    $context = context_user::instance($userid);
+}
+
+$capabilities = array(
+    'moodle/backup:backupcourse',
+    'moodle/backup:userinfo',
+    'moodle/restore:restorecourse',
+    'moodle/restore:userinfo',
+    'moodle/course:create',
+    'moodle/site:approvecourse',
+);
+
+require_capability('local/esupervision:view', $context);
+require_all_capabilities($capabilities, $context);
+
+$header = fullname($USER);
+$pagetitle = get_string('pluginname', 'local_esupervision');
+
+$PAGE->set_context($context);
+$PAGE->set_url('/local/esupervision/index.php', $params);
+$PAGE->requires->css(new moodle_url('/local/esupervision/styles/bs-stepper.min.css'));
+$PAGE->requires->css(new moodle_url('/local/esupervision/styles.css'));
 $PAGE->set_pagelayout('standard');
-$PAGE->set_pagetype('local-esupervision-index');
-$PAGE->set_url('/local/esupervision/index.php');
-$PAGE->navbar->add(get_string('supervisor_dashboard', 'local_esupervision'), new moodle_url('/local/esupervision/dashboard/supervisor.php'));
-$PAGE->navbar->add(get_string('home_page', 'local_esupervision'), new moodle_url('/local/esupervision/index.php'));
+
+switch ($step) {
+    case 2:
+        $banner = get_string('selectcategorybanner', 'local_esupervision');
+        break;
+
+    case 3:
+        $banner = get_string('definesettingsbanner', 'local_esupervision');
+        break;
+
+    default:
+        $banner = get_string('choosetemplatebanner', 'local_esupervision');
+        break;
+}
+
+$pageheading = get_string('createcoursefromtemplate', 'local_esupervision');
+$pagetitle = $banner.' - '.$pageheading;
+
+$PAGE->set_title($pagetitle);
+$PAGE->set_heading($header);
+
+$redirecturl = $CFG->wwwroot . '/local/esupervision/index.php';
+
+$courseidarray = array();
+$categoryidarray = array();
+
+if ($step === 3 && isset($cateid)) {
+    $rowsarray = \core_course_category::make_categories_list($capabilities);
+
+    $categoriesarray = array();
+
+    foreach ($rowsarray as $key => $row) {
+        $categoriesarray[$key] = $row;
+    }
+
+    $mform = new coursecategorieslistform(
+        $redirecturl,
+        array(
+            'categoriesarray' => $categoriesarray,
+            'defaultcategory' => $cateid,
+        )
+    );
+
+    if ($fromform = $mform->get_data()) {
+        $selcate = $fromform->sel_cate;
+        $cateid = $selcate;
+    }
+
+    $redirecturl = $CFG->wwwroot . '/local/esupervision/index.php?step=3&cateid=' . $cateid . 'cid=' . $cid;
+}
+
+$courseidarray['cid'] = isset($cid) ? $cid : '';
+$courseidarray['courseid'] = isset($courseid) ? $courseid : '';
+
+foreach ($courseidarray as $courseidentifier) {
+    if (isset($courseidentifier) && !empty($courseidentifier)) {
+        if (!$DB->get_record('course', array('id' => $courseidentifier), 'id')) {
+            redirect(new moodle_url('/local/esupervision/index.php'), array());
+        }
+    }
+}
+
+$categoryidarray['selcate'] = isset($selcate) ? $selcate : '';
+$categoryidarray['cateid'] = isset($cateid) ? $cateid : 1;
+
+foreach ($categoryidarray as $categoryidentifier) {
+    if (isset($categoryidentifier) && !empty($categoryidentifier)) {
+        if (!$DB->get_record('course_categories', array('id' => $categoryidentifier), 'id')) {
+            redirect(new moodle_url('/local/esupervision/index.php'), array());
+        }
+    }
+}
 
 echo $OUTPUT->header();
-echo "<h2>Welcome to E-Supervisor!</h2>";
-echo "<p>E-Supervisor is a plugin for Moodle that allows students to submit their project proposal and main project and supervisors to manage projects and provide feedback to students.</p>";
-echo $OUTPUT->footer();
+echo $OUTPUT->heading($pageheading);
 
- 
+$themecfg = get_config('theme_boost');
+
+if (!$step) {
+    $htmlstepper = '';
+    $htmlstepper .= '<div class="bs-stepper">';
+    $htmlstepper .= '<div class="bs-stepper-header" role="tablist">';
+    $htmlstepper .= '<div class="step active" data-target="#logins-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="logins-part" id="logins-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle" style="background-color:'
+        . $themecfg->brandcolor
+        . ';">1</span>';
+    $htmlstepper .= '<span class="bs-stepper-label"><strong style="color:'
+        . $themecfg->brandcolor
+        . ';">'
+        . get_string('choosetemplatebanner', 'local_esupervision')
+        . '</strong></span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<div class="line"></div>';
+    $htmlstepper .= '<div class="step" data-target="#information-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="information-part" id="information-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle">2</span>';
+    $htmlstepper .= '<span class="bs-stepper-label">'
+        . get_string('selectcategorybanner', 'local_esupervision')
+        . '</span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<div class="line"></div>';
+    $htmlstepper .= '<div class="step" data-target="#information-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="information-part" id="information-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle">3</span>';
+    $htmlstepper .= '<span class="bs-stepper-label">'
+        . get_string('definesettingsbanner', 'local_esupervision')
+        . '</span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '</div>';
+    echo $htmlstepper;
+
+    echo html_writer::tag('p', html_writer::tag('strong', get_string('choosetemplate', 'local_esupervision')));
+    echo get_template_list_form($cateid);
+} else if ($step == 2) {
+    $htmlstepper = '';
+    $htmlstepper .= '<div class="bs-stepper">';
+    $htmlstepper .= '<div class="bs-stepper-header" role="tablist">';
+    $htmlstepper .= '<div class="step" data-target="#logins-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="logins-part" id="logins-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle">1</span>';
+    $htmlstepper .= '<span class="bs-stepper-label">'
+        . get_string('choosetemplatebanner', 'local_esupervision')
+        . '</span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<div class="line"></div>';
+    $htmlstepper .= '<div class="step active" data-target="#information-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="information-part" id="information-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle" style="background-color:'
+        . $themecfg->brandcolor
+        . ';">2</span>';
+    $htmlstepper .= '<span class="bs-stepper-label"><strong style="color:'
+        . $themecfg->brandcolor
+        . ';">'
+        . get_string('selectcategorybanner', 'local_esupervision')
+        . '</strong></span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<div class="line"></div>';
+    $htmlstepper .= '<div class="step" data-target="#information-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="information-part" id="information-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle">3</span>';
+    $htmlstepper .= '<span class="bs-stepper-label">'
+        . get_string('definesettingsbanner', 'local_esupervision')
+        . '</span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '</div>';
+    echo $htmlstepper;
+
+    if (!$cid) {
+        echo $OUTPUT->notification(get_string('choosetemplate', 'local_esupervision'));
+        echo html_writer::tag(
+            'p',
+            html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('back', 'local_esupervision'),
+                    'onclick' => 'javascript :history.back(-1)',
+                    'class' => 'btn btn-primary',
+                    'style' => 'margin-right:20px;'
+                )
+            ) . html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('continue', 'local_esupervision'),
+                    'onclick' => 'window.location.href="' . $redirecturl . '"',
+                    'class' => 'btn btn-primary'
+                )
+            )
+        );
+    } else {
+        echo html_writer::tag(
+            'p',
+            html_writer::tag(
+                'strong',
+                get_string('choosecategory', 'local_esupervision')
+            )
+        );
+
+        echo get_template_categories_form($cid, $cateid);
+    }
+} else if ($step == 3) {
+    $coursetemplatesconfig = get_config('local_esupervision');
+    $htmlstepper = '';
+    $htmlstepper .= '<div class="bs-stepper">';
+    $htmlstepper .= '<div class="bs-stepper-header" role="tablist">';
+    $htmlstepper .= '<div class="step" data-target="#logins-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="logins-part" id="logins-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle">1</span>';
+    $htmlstepper .= '<span class="bs-stepper-label">'
+        . get_string('choosetemplatebanner', 'local_esupervision')
+        . '</span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<div class="line"></div>';
+    $htmlstepper .= '<div class="step" data-target="#information-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="information-part" id="information-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle">2</span>';
+    $htmlstepper .= '<span class="bs-stepper-label">'
+        . get_string('selectcategorybanner', 'local_esupervision')
+        . '</span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<div class="line"></div>';
+    $htmlstepper .= '<div class="step active" data-target="#information-part">';
+    $htmlstepper .= '<button type="button" class="step-trigger" role="tab" '
+        . 'aria-controls="information-part" id="information-part-trigger" disabled="disabled">';
+    $htmlstepper .= '<span class="bs-stepper-circle" style="background-color:'
+        . $themecfg->brandcolor
+        . ';">3</span>';
+    $htmlstepper .= '<span class="bs-stepper-label"><strong style="color:'
+        . $themecfg->brandcolor
+        . ';">'
+        . get_string('definesettingsbanner', 'local_esupervision')
+        . '</strong></span>';
+    $htmlstepper .= '</button>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '</div>';
+    $htmlstepper .= '<input type="hidden" id="jump_to" value="'
+        . $coursetemplatesconfig->jump_to
+        . '">';
+    echo $htmlstepper;
+
+    if (!$selcate) {
+        echo $OUTPUT->notification(get_string('choosecategory', 'local_esupervision'));
+        echo html_writer::tag(
+            'p',
+            html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('back', 'local_esupervision'),
+                    'onclick' => 'javascript :history.back(-1)',
+                    'class' => 'btn btn-secondary',
+                    'style' => 'margin-right:20px;'
+                )
+            ) . html_writer::empty_tag(
+                'input',
+                array('type' => 'button',
+                    'value' => get_string('continue', 'local_esupervision'),
+                    'onclick' => 'window.location.href="' . $redirecturl . '?step=2&cid=' . $cid . '"',
+                    'class' => 'btn btn-primary'
+                )
+            )
+        );
+    } else {
+        $categoryid = $selcate;
+        echo html_writer::tag('p', html_writer::tag('strong', get_string('inputinfo', 'local_esupervision')));
+        echo get_template_setting_form($cid, $categoryid, $cateid);
+    }
+} else if ($step == 4) {
+    $status = $coursestatus;
+
+    if ($status == 1) {
+        $redirecturl = $CFG->wwwroot.'/course/view.php?id=' . $courseid;
+
+        echo html_writer::tag('p', get_string('createsuccess', 'local_esupervision'));
+        echo html_writer::tag(
+            'p',
+            html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('back', 'local_esupervision'),
+                    'onclick' => 'javascript :history.back(-1)',
+                    'class' => 'btn btn-secondary',
+                    'style' => 'margin-right:20px;'
+                )
+            ) . html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('continue', 'local_esupervision'),
+                    'onclick' => 'window.location.href="' . $redirecturl . '"',
+                    'class' => 'btn btn-primary'
+                )
+            )
+        );
+    } else if ($status == 2) {
+        echo $OUTPUT->notification(get_string('inputinfotip', 'local_esupervision'));
+        echo html_writer::tag(
+            'p',
+            html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('back', 'local_esupervision'),
+                    'onclick' => 'javascript :history.back(-1)',
+                    'class' => 'btn btn-secondary',
+                    'style' => 'margin-right:20px;'
+                )
+            ) . html_writer::empty_tag(
+                'input',
+                array('type' => 'button',
+                    'value' => get_string('continue', 'local_esupervision'),
+                    'onclick' => 'window.location.href="'
+                        . $redirecturl
+                        . '?step=3&cid='
+                        . $courseid
+                        . '&sel_cate='
+                        . $cateid
+                        . '"',
+                    'class' => 'btn btn-primary'
+                )
+            )
+        );
+    } else {
+        echo $OUTPUT->notification(get_string('createfailed', 'local_esupervision'));
+        echo html_writer::tag(
+            'p',
+            html_writer::empty_tag(
+                'input',
+                array(
+                    'type' => 'button',
+                    'value' => get_string('back', 'local_esupervision'),
+                    'onclick' => 'javascript :history.back(-1)',
+                    'class' => 'btn btn-secondary',
+                    'style' => 'margin-right:20px;'
+                )
+            ) . html_writer::empty_tag(
+                'input',
+                array('type' => 'button',
+                    'value' => get_string('continue', 'local_esupervision'),
+                    'onclick' => 'window.location.href="' . $redirecturl . '"',
+                    'class' => 'btn btn-primary'
+                )
+            )
+        );
+    }
+}
+
+echo $OUTPUT->footer();
