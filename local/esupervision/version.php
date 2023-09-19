@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,18 +16,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * MOODLE VERSION INFORMATION
  *
- * @package   local_esupervision
- * @copyright 2017 onwards, emeneo (www.emeneo.com)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * This file defines the current version of the core Moodle code being used.
+ * This is compared against the values stored in the database to determine
+ * whether upgrades should be performed (see lib/db/*.php)
+ *
+ * @package    local_esupervision
+ * @copyright  Ezekiel Nwuguru
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
+$plugin->release      = '1.0';
+$plugin->version  = 20230217012.00;
+$plugin->requires = 2023021700;
 $plugin->component = 'local_esupervision';
-$plugin->cron = 0;
-$plugin->version  = 2023051700;
-$plugin->requires = 2018120300; // Moodle 3.6+.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'esupervision plugin Version 4.2-a';
+$plugin->maturity     = MATURITY_STABLE;
+
+if (file_exists(__DIR__ . '/db/install.xml')) {
+    require_once(__DIR__ . '/db/install.xml');
+}

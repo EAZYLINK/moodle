@@ -15,47 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * List of strings for the English language.
+ * English language pack for block mycourse.
  *
- * @package   local_esupervision
- * @copyright 2017 onwards, emeneo (www.emeneo.com)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * - each user can currently have their own page (cloned from system and then customised)
+ * - only the user can see their own dashboard
+ * - users can add any blocks they want
+ *
+ * @package    local_esupervision
+ * @subpackage esupervision_v1
+ * @category   block
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$string['addcourse'] = 'Add course from template';
-$string['back'] = 'Back';
-$string['choosecategory'] = 'Please select your course category';
-$string['choosetemplate'] = 'Please choose your template';
-$string['choosetemplatebanner'] = 'Choose Template';
-$string['continue'] = 'Continue';
-$string['course_templates:edit'] = 'Edit course template';
-$string['course_templates:view'] = 'View course template';
-$string['coursename'] = 'Course name';
-$string['courseshortname'] = 'Course short name';
-$string['createfailed'] = 'There was a problem. Did you use a course name which already exist? Please try again.';
-$string['createsuccess'] = 'Create a new course successfully';
-$string['createcoursefromtemplate'] = 'Create a course from a template';
-$string['datetime'] = 'Date and time';
-$string['definesettingsbanner'] = 'Define Settings';
-$string['enddate'] = 'End date';
-$string['endtime'] = 'End time';
-$string['esupervision:edit'] = 'Esupervision:edit';
-$string['esupervision:view'] = 'Esupervision:view';
-$string['hiddencategories'] = 'Hidden categories';
-$string['inputinfo'] = 'Please enter below information';
-$string['inputinfotip'] = 'Please enter new course information';
-$string['jumpto'] = 'Jump to';
-$string['jumpto_coursepage'] = 'Course page';
-$string['jumpto_coursesettingspage'] = 'Course settings page';
-$string['location'] = 'Location';
-$string['namecategory'] = 'Category';
-$string['namecategorydescription'] = 'Please choose the category that you want to use for the course templates';
-$string['parametererror'] = 'Parameter error';
-$string['pluginname'] = 'Course templates';
-$string['privacy:metadata'] = 'The Course templates plugin does not store any personal data.';
-$string['selectcategorybanner'] = 'Select Category';
-$string['startdate'] = 'Start date';
-$string['starttime'] = 'Start time';
-$string['useastemplate'] = 'Use as template';
+$string['error_required'] = 'Error required';
+$string['home_page'] = 'Home page';
+$string['pluginname'] = 'esupervision';
+$string['attendance'] = 'Attendance';
+$string['punctuality'] = 'Punctuality';
+$string['attention'] = 'Attention to Instructions';
+$string['turnover'] = 'Turnover of Assigned Tasks';
+$string['resourcefulness'] = 'Resourcefulness';
+$string['attitude'] = 'Attitude to Work';
+$string['student_id'] = 'Student ID';
+$string['submit'] = 'Submit';
+$string['success'] = 'Submitted successfully!';
+$string['fail'] = 'Failed';
+$string['comment'] = 'Comment';
+$string['cancelled'] = 'Form submission Cancelled';
+$string['esupervision'] = 'eSupervision block';
+$string['esupervision:addinstance'] = 'Add a new eSupervision block';
+$string['esupervision:myaddinstance'] = 'Add a new eSupervision block to the My Moodle page';

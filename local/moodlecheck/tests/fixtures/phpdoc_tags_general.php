@@ -230,4 +230,32 @@ class fixturing_general {
     public function correct_return_type(): string {
         return "yay!";
     }
+
+    /**
+     * Namespaced types.
+     *
+     * @param \stdClass $data
+     * @param \core\user $user
+     * @return \core\user
+     */
+    public function namespaced_parameter_type(
+        \stdClass $data,
+        \core\user $user
+    ): \core\user {
+        return $user;
+    }
+
+    /**
+     * Namespaced types.
+     *
+     * @param null|\stdClass   $data
+     * @param null|\core\test\something|\core\some\other_thing $moredata
+     * @return \stdClass
+     */
+    public function builtin(
+        ?\stdClass $data,
+        ?\core\test\something|\core\some\other_thing $moredata
+    ): \stdClass {
+        return $user;
+    }
 }

@@ -15,33 +15,41 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Access file.
+ * English language pack for block mycourse.
  *
- * @package   local_esupervision
- * @copyright 2017 onwards, emeneo (www.emeneo.com)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * - each user can currently have their own page (cloned from system and then customised)
+ * - only the user can see their own dashboard
+ * - users can add any blocks they want
+ *
+ * @package    local_esupervision
+ * @subpackage esupervision_v1
+ * @category   block
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'local/esupervision:view' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSECAT,
-        'archetypes' => array(
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW,
-        )
-    ),
-    'local/esupervision:edit' => array(
+    $capabilities = array(
+    'block/esupervision:myaddinstance' => array(
         'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSECAT,
+        'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
-            'teacher' => CAP_ALLOW,
+            'user' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+    ),
+
+    'block/esupervision:addinstance' => array(
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        )
+            'manager' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
 );

@@ -13,7 +13,7 @@ Instructions to upgrade the moodle-cs bundled version:
 
 Current checkout:
 
-  3.3.4 (9ec28ac)
+  3.3.5 (abc742c)
 
 Local modifications (only allowed if there is a PR upstream backing it):
 
@@ -56,7 +56,7 @@ Instructions to upgrade the PHPCompatibility bundled version:
 
 Current checkout:
 
-  10.0dev (70e4ca24)
+  10.0dev (0a17f9ed)
 
 Local modifications (only allowed if there is a PR upstream backing it):
 
@@ -78,7 +78,7 @@ Instructions to upgrade the PHPCSUtils bundled version:
 
 Current checkout:
 
-  1.0.5 (0cfef51)
+  1.0.8 (69465ca)
 
 Local modifications (only allowed if there is a PR upstream backing it):
 
