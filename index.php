@@ -28,15 +28,16 @@ if (!file_exists('./config.php')) {
 }
 
 require_once('config.php');
-require_once($CFG->dirroot .'/course/lib.php');
-require_once($CFG->libdir .'/filelib.php');
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 redirect_if_major_upgrade_required();
 
 $urlparams = array();
-if (!empty($CFG->defaulthomepage) &&
-        ($CFG->defaulthomepage == HOMEPAGE_MY || $CFG->defaulthomepage == HOMEPAGE_MYCOURSES) &&
-        optional_param('redirect', 1, PARAM_BOOL) === 0
+if (
+    !empty($CFG->defaulthomepage) &&
+    ($CFG->defaulthomepage == HOMEPAGE_MY || $CFG->defaulthomepage == HOMEPAGE_MYCOURSES) &&
+    optional_param('redirect', 1, PARAM_BOOL) === 0
 ) {
     $urlparams['redirect'] = 0;
 }
@@ -62,7 +63,7 @@ if (!empty($CFG->maintenance_enabled) and !$hasmaintenanceaccess) {
 $hassiteconfig = has_capability('moodle/site:config', context_system::instance());
 
 if ($hassiteconfig && moodle_needs_upgrading()) {
-    redirect($CFG->wwwroot .'/'. $CFG->admin .'/index.php');
+    redirect($CFG->wwwroot . '/' . $CFG->admin . '/index.php');
 }
 
 // If site registration needs updating, redirect.
@@ -75,22 +76,25 @@ if (get_home_page() != HOMEPAGE_SITE) {
         set_user_preference('user_home_page_preference', HOMEPAGE_SITE);
     } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_MY) && $redirect === 1) {
         // At this point, dashboard is enabled so we don't need to check for it (otherwise, get_home_page() won't return it).
-        redirect($CFG->wwwroot .'/my/');
+        redirect($CFG->wwwroot . '/my/');
     } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_MYCOURSES) && $redirect === 1) {
-        redirect($CFG->wwwroot .'/my/courses.php');
+        redirect($CFG->wwwroot . '/my/courses.php');
     } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_USER)) {
         $frontpagenode = $PAGE->settingsnav->find('frontpage', null);
         if ($frontpagenode) {
             $frontpagenode->add(
                 get_string('makethismyhome'),
                 new moodle_url('/', array('setdefaulthome' => true)),
-                navigation_node::TYPE_SETTING);
+                navigation_node::TYPE_SETTING
+            );
         } else {
             $frontpagenode = $PAGE->settingsnav->add(get_string('frontpagesettings'), null, navigation_node::TYPE_SETTING, null);
             $frontpagenode->force_open();
-            $frontpagenode->add(get_string('makethismyhome'),
+            $frontpagenode->add(
+                get_string('makethismyhome'),
                 new moodle_url('/', array('setdefaulthome' => true)),
-                navigation_node::TYPE_SETTING);
+                navigation_node::TYPE_SETTING
+            );
         }
     }
 }
@@ -118,6 +122,7 @@ echo $OUTPUT->header();
 $siteformatoptions = course_get_format($SITE)->get_format_options();
 $modinfo = get_fast_modinfo($SITE);
 $modnamesused = $modinfo->get_used_module_names();
+
 
 // Print Section or custom info.
 if (!empty($CFG->customfrontpageinclude)) {

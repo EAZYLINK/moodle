@@ -23,22 +23,44 @@
  */
 
 
- // Include necessary files
- require_once(__DIR__ . '/../../config.php');
+// Include necessary files
+require_once(__DIR__ . '/../../config.php');
+require_login();
 
 $PAGE->set_context(context_system::instance());
-$PAGE->set_url('/local/esupervision/lib.php');
 $PAGE->set_title(get_string('pluginname', 'local_esupervision'));
-$PAGE->set_heading(get_string('pluginname', 'local_esupervision'));
-$PAGE->set_pagelayout('standard');
-$PAGE->set_pagetype('local-esupervision-index');
+$PAGE->set_pagelayout('popup');
 $PAGE->set_url('/local/esupervision/index.php');
-$PAGE->navbar->add(get_string('supervisor_dashboard', 'local_esupervision'), new moodle_url('/local/esupervision/dashboard/supervisor.php'));
-$PAGE->navbar->add(get_string('home_page', 'local_esupervision'), new moodle_url('/local/esupervision/index.php'));
+
 
 echo $OUTPUT->header();
-echo "<h2>Welcome to E-Supervisor!</h2>";
-echo "<p>E-Supervisor is a plugin for Moodle that allows students to submit their project proposal and main project and supervisors to manage projects and provide feedback to students.</p>";
-echo $OUTPUT->footer();
 
- 
+$topic = new stdClass();
+$topic->title = 'Topics';
+$topic->content = "view and manage topics";
+$topic->url = new moodle_url("/local/esupervision/project/topics.php");
+
+$proposal = new stdClass();
+$proposal->title = "Proposals";
+$proposal->content = "view and manage proposals";
+$proposal->url = new moodle_url("/local/esupervision/project/proposals.php");
+
+$report = new stdClass();
+$report->title = 'Reports';
+$report->content = "view and manage reports";
+$report->url = new moodle_url("/local/esupervision/project/reports.php");
+
+$grade = new stdClass();
+$grade->title = 'Grades';
+$grade->content = "view and manage grades";
+$grade->url = new moodle_url("/local/esupervision/project/grading.php");
+
+
+$name = $USER->firstname . " " . $USER->lastname;
+$pages = array($topic, $proposal, $report, $grade);
+$data = array(
+    "name" => $name,
+    "pages" => array_values($pages)
+);
+echo $OUTPUT->render_from_template("local_esupervision/view", $data);
+echo $OUTPUT->footer();

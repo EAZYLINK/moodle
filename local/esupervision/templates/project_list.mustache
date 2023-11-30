@@ -34,35 +34,35 @@
     }
 }}
 
-<div class="block">
-    <div class="block_content">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="table-responsive">
-                    <table class="table">
-                        <caption class="text-center">Project List</caption>
-                        <tbody>
-                            <tr>
-                                <th>SN</th>
-                                <th>Project Title</th>
-                                <th>Description</th>
-                                <th>Assigned Supervisor</th>
-                                <th>Student Name</th>
-                                <th>Status</th>
-                            </tr>
-                        {{#project}}
-                            <tr>
-                                <td>{{id}}</td>
-                                <td>{{title}}</td>
-                                <td>{{description}}</td>
-                                <td>{{supervisor_name}}</td>
-                                <td>{{student_name}}</td>
-                                <td>{{status}}</td>
-                            </tr>
-                        {{/project}}
-                        </tbody>
-                    </table> 
-                </div>
-            </div>
-        </div>
-    </div>
+<table class="table">
+    <caption class="text-center">Project List</caption>
+    <tbody>
+        <tr>
+            <th>SN</th>
+            <th>Project Title</th>
+            <th>Description</th>
+            <th>Assigned Supervisor</th>
+            <th>Student Name</th>
+            <th>Status</th>
+        </tr>
+    {{#project}}
+        <tr>
+            <td>{{id}}</td>
+            <td>{{title}}</td>
+            <td>{{description}}</td>
+            <td>{{supervisor_name}}</td>
+            <td>{{student_name}}</td>
+            <td>{{status}}</td>
+            <td>
+                <a href="?id={{id}}">view</a>
+            </td>
+        </tr>
+    {{/project}}
+    </tbody>
+</table>
+
+{{^project}}
+    <tr>
+        <td colspan="8">{{#str}}local_esupervision:no_project{{/str}}</td>
+    </tr>
+{{/project}}

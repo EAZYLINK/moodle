@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Communication and collaboration file.
+ * TODO describe file student_list
  *
  * @package    local_esupervision
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
+ * @copyright  2023 YOUR NAME <your@email.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,14 +26,24 @@ require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../lib.php');
 require_login();
 
-$PAGE->set_url('/local/esupervision/project/grading.php');
+global $DB, $OUTPUT, $PAGE;
+
+$PAGE->set_url(new moodle_url('/local/esupervision/project/studentlist.php'));
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title('Project Scores');
+$PAGE->set_title('Student List');
 $PAGE->set_pagelayout('standard');
 
-$grade_form = new \local_esupervision\form\grading_form();
+$upload_studentlist_form = new \local_esupervision\form\upload_studentlist_form();
 
 echo $OUTPUT->header();
 
+$upload_studentlist_form->display();
+if ($upload_studentlist_form->is_cancelled()) {
+    redirect($PAGE->url, 'form cancelled');
+} elseif ($upload_studentlist_form->get_data()) {
+    $data = $upload_studentlist_form->get_data();
+    $content = $upload_studentlist_form->get_file_content('student_list');
+    var_dump($content);
+}
 
 echo $OUTPUT->footer();

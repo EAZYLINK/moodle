@@ -1,0 +1,101 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_esupervision/topic
+
+    TODO describe template topic
+
+    Example context (json):
+    {
+    }
+}}
+{{#issupervisor}}
+<table class="table">
+  <caption class="text-center">
+    Submitted Topics
+  </caption>
+  <tbody>
+    <tr>
+      <th>SN</th>
+      <th>Student Name</th>
+      <th>Topic</th>
+      <th>Description</th>
+      <th>Status</th>
+    </tr>
+    {{#topics}}
+    <tr>
+      <td>{{ id }}</td>
+      <td>{{ studentname }}</td>
+      <td>{{ topic }}</td>
+      <td>{{ description }}</td>
+      <td>{{ status }}</td>
+      <td>
+        <button class="btn"><a href="?action=view&id={{ id }}">view</a></button>
+      </td>
+    </tr>
+    {{/topics}}
+  </tbody>
+</table>
+{{/issupervisor}}
+
+{{^issupervisor}}
+<div class="container">
+  <h4 class="mt-5">Submitted topics</h4>
+  <div class="row">
+    {{#topics}}
+    <div class="card mb-5 col-4 mx-3">
+      <div class="card-body">
+        <h5 class="card-header border-0 mb-2"><span style="font-weight: bold;">Topic:</span>    {{ topic }}</h5>
+        <div class="card-text"><span style="font-weight: bold;">Description:</span>   {{ description }}</div>
+        <div class="card-text"><span style="font-weight: bold;">Status:</span>  {{ status }}</div>
+        <small class="card-text"><span style="font-weight: bold;">submitted date:</span>  {{timecreated}}</small><br>
+        <small class="card-text"><span style="font-weight: bold;">Last modified:</span>   {{timemodified}}</small><br>
+        <div class="card-footer border-0 text-center mt-3">
+            <a href="?action=edit&id={{ id }}" class="btn btn-outline-primary mx-3"><img src="../assets/edit.png"></a>
+            <a href="?action=delete&id={{ id }}" class="btn btn-outline-primary mx-3"><img src="../assets/delete.png"></a>
+        </div>
+      </div>
+      {{#comments}}
+       <p>Supervisor's comment: {{comment}}</p>
+      {{/comments}}
+    </div>
+    {{/topics}}
+  </div>
+</div>
+{{/issupervisor}}
+
+{{#viewtopic}}
+<div class="container">
+  <h4 class="mt-5">Topic details</h4>
+  {{#topic}}
+  <div class="card mb-5 w-50">
+    <div class="card-body">
+      <h5 class="card-title">Topic: {{ topic }}</h5>
+      <p class="card-text">Description: {{ description }}</p>
+      <p class="card-text">Student name: {{ studentname }}</p>
+      <p class="card-text">Status: {{ status }}</p>
+      <small class="card-text">Last modified: {{timemodified}}</small><br>
+      <div class="text-right mt-3">
+          <a href="?action=approve&id={{ id }}" class="btn btn-primary">Approve Topic</a>
+          <a href="?action=reject&id={{ id }}" class="btn btn-primary">Reject Topic</a>
+      </div>
+    </div>
+    {{/topic}}
+  </div>
+{{/viewtopic}}
+
+

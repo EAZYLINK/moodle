@@ -27,21 +27,32 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['approvereports'] = 'Approve reports';
+$string['approvetopics'] = 'Approve topics';
 $string['error_required'] = 'Error required';
-$string['home_page'] = 'Home page';
+$string['esupervision:approvereport'] = 'Approve report';
+$string['esupervision:gradeproject'] = 'Grade student project';
+$string['esupervision:selecttopic'] = 'Select topic';
+$string['esupervision:submitreport'] = 'Submit report';
+$string['esupervision:submittopic'] = 'Submit report';
+$string['esupervision:view'] = 'view page';
+$string['esupervision:viewgrade'] = 'View student grade';
+$string['esupervision:viewreports'] = 'View student report';
+$string['esupervision:viewtopics'] = 'View project topic';
 $string['pluginname'] = 'esupervision';
 $string['attendance'] = 'Attendance';
 $string['punctuality'] = 'Punctuality';
 $string['attention'] = 'Attention to Instructions';
+$string['submitcomment'] = 'Submit comment';
+$string['submitreport'] = 'Submit report';
+$string['submittopic'] = 'Submit topic';
 $string['turnover'] = 'Turnover of Assigned Tasks';
 $string['resourcefulness'] = 'Resourcefulness';
 $string['attitude'] = 'Attitude to Work';
 $string['student_id'] = 'Student ID';
-$string['submit'] = 'Submit';
-$string['success'] = 'Submitted successfully!';
-$string['fail'] = 'Failed';
 $string['comment'] = 'Comment';
-$string['cancelled'] = 'Form submission Cancelled';
-$string['esupervision'] = 'eSupervision block';
-$string['esupervision:addinstance'] = 'Add a new eSupervision block';
-$string['esupervision:myaddinstance'] = 'Add a new eSupervision block to the My Moodle page';
+$string['esupervision:approvetopic'] = 'Approve a topic';
+$string['esupervision:postcomment'] = 'Post a comment';
+$string['home'] = 'Home';
+$string['viewreports'] = 'View reports';
+$string['viewtopics'] = 'View topics';

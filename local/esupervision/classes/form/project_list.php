@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,18 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_esupervision\form;
+
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Version details.
+ * project list form for project supervision
  *
- * @package    local_codechecker
- * @copyright  2011 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 1999 Martin Dougiamas  http://dougiamas.com
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_esupervision
  */
 
-defined('MOODLE_INTERNAL') || die;
+require_once("$CFG->libdir/formslib.php");
 
-$plugin->version   = 2023092600;;
-$plugin->release   = '5.0.0';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->requires  = 2019111803; // Moodle 3.8.3 release and upwards (first one supporting PHP 7.4).
-$plugin->component = 'local_codechecker';
+class project_listform extends moodleform
+{
+  public function definition()
+  {
+    $mform = $this->_form;
+    $mform->addElement('select', 'project', 'Project Name:');
+  }
+}

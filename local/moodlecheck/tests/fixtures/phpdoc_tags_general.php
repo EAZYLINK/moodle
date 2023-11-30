@@ -33,7 +33,8 @@ global $CFG;
  * @copyright 2018 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class fixturing_general {
+class fixturing_general
+{
 
     /**
      * Some valid tags, to verify they are ok.
@@ -44,7 +45,8 @@ class fixturing_general {
      * @author
      * @todo
      */
-    public function all_valid_tags() {
+    public function all_valid_tags()
+    {
         echo "yay!";
     }
 
@@ -59,7 +61,8 @@ class fixturing_general {
      * @zzzing
      * @inheritdoc
      */
-    public function all_invalid_tags() {
+    public function all_invalid_tags()
+    {
         echo "yoy!";
     }
 
@@ -69,7 +72,8 @@ class fixturing_general {
      * @param $one
      * @param $two
      */
-    public function incomplete_param_annotation($one, $two) {
+    public function incomplete_param_annotation($one, $two)
+    {
         echo "yoy!";
     }
 
@@ -79,14 +83,16 @@ class fixturing_general {
      * @param string $one
      * @param bool $two
      */
-    public function missing_param_defintion() {
+    public function missing_param_defintion()
+    {
         echo "yoy!";
     }
 
     /**
      * Missing param annotation.
      */
-    public function missing_param_annotation(string $one, bool $two) {
+    public function missing_param_annotation(string $one, bool $two)
+    {
         echo "yoy!";
     }
 
@@ -96,7 +102,8 @@ class fixturing_general {
      * @param string $one
      * @param bool $two
      */
-    public function incomplete_param_definition(string $one) {
+    public function incomplete_param_definition(string $one)
+    {
         echo "yoy!";
     }
 
@@ -105,7 +112,8 @@ class fixturing_general {
      *
      * @param string $one
      */
-    public function incomplete_param_annotation1(string $one, bool $two) {
+    public function incomplete_param_annotation1(string $one, bool $two)
+    {
         echo "yoy!";
     }
 
@@ -115,7 +123,8 @@ class fixturing_general {
      * @param string $one
      * @param bool $two
      */
-    public function mismatch_param_types(string $one, array $two = []) {
+    public function mismatch_param_types(string $one, array $two = [])
+    {
         echo "yoy!";
     }
 
@@ -125,7 +134,8 @@ class fixturing_general {
      * @param string|bool $one
      * @param bool $two
      */
-    public function mismatch_param_types1(string $one, bool $two) {
+    public function mismatch_param_types1(string $one, bool $two)
+    {
         echo "yoy!";
     }
 
@@ -135,7 +145,8 @@ class fixturing_general {
      * @param string|bool $one
      * @param bool $params
      */
-    public function mismatch_param_types2(string $one, ...$params) {
+    public function mismatch_param_types2(string $one, ...$params)
+    {
         echo "yoy!";
     }
 
@@ -145,7 +156,8 @@ class fixturing_general {
      * @param string $one
      * @param int[] $params
      */
-    public function mismatch_param_types3(string $one, int $params) {
+    public function mismatch_param_types3(string $one, int $params)
+    {
         echo "yoy!";
     }
 
@@ -156,7 +168,8 @@ class fixturing_general {
      * @param bool $two
      * @param array $three
      */
-    public function correct_param_types($one, bool $two, array $three) {
+    public function correct_param_types($one, bool $two, array $three)
+    {
         echo "yay!";
     }
 
@@ -167,7 +180,8 @@ class fixturing_general {
      * @param bool $two
      * @param array $three
      */
-    public function correct_param_types1($one, bool $two, array $three) {
+    public function correct_param_types1($one, bool $two, array $three)
+    {
         echo "yay!";
     }
 
@@ -177,7 +191,8 @@ class fixturing_general {
      * @param string $one
      * @param bool $two
      */
-    public function correct_param_types2($one, $two) {
+    public function correct_param_types2($one, $two)
+    {
         echo "yay!";
     }
 
@@ -188,7 +203,8 @@ class fixturing_general {
      * @param bool $two
      * @param array $three
      */
-    public function correct_param_types3(?string $one = null, bool $two, array $three) {
+    public function correct_param_types3(?string $one = null, bool $two, array $three)
+    {
         echo "yay!";
     }
 
@@ -199,7 +215,8 @@ class fixturing_general {
      * @param bool $two
      * @param int[] $three
      */
-    public function correct_param_types4($one = null, bool $two, array $three) {
+    public function correct_param_types4($one = null, bool $two, array $three)
+    {
         echo "yay!";
     }
 
@@ -209,7 +226,8 @@ class fixturing_general {
      * @param string $one
      * @param mixed ...$params one or more params
      */
-    public function correct_param_types5(string $one, ...$params) {
+    public function correct_param_types5(string $one, ...$params)
+    {
         echo "yay!";
     }
 
@@ -218,7 +236,8 @@ class fixturing_general {
      *
      * @return
      */
-    public function incomplete_return_annotation() {
+    public function incomplete_return_annotation()
+    {
         echo "yoy!";
     }
 
@@ -227,7 +246,8 @@ class fixturing_general {
      *
      * @return string
      */
-    public function correct_return_type(): string {
+    public function correct_return_type(): string
+    {
         return "yay!";
     }
 
@@ -254,7 +274,7 @@ class fixturing_general {
      */
     public function builtin(
         ?\stdClass $data,
-        ?\core\test\something|\core\some\other_thing $moredata
+        ?\core\test\something/\core\some\other_thing $moredata
     ): \stdClass {
         return $user;
     }
