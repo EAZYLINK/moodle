@@ -40,7 +40,6 @@ class comment_form extends \moodleform
         $mform->setType('comment', PARAM_TEXT);
         $mform->addElement('hidden', 'submissionid');
         $mform->setType('submissionid', PARAM_INT);
-        $this->add_action_buttons(true, 'Submit Comment');
     }
 
     public function validation($data, $files)

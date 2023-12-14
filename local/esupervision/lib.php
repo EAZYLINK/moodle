@@ -317,11 +317,20 @@ function reject_proposal($id)
     return $proposalid;
 }
 
+function update_proposal($data)
+{
+    global $DB;
+    $table = 'esupervision_projectproposals';
+    $data->timemodified = date('Y-m-d H:i:s');
+    $update_proposalid = $DB->update_record($table, $data);
+    return $update_proposalid;
+}
+
 function delete_proposal($id)
 {
     global $DB;
     $table = 'esupervision_projectproposals';
-    $proposalid = $DB->delete_record($table, array('id' => $id));
+    $proposalid = $DB->delete_records($table, array('id' => $id));
     return $proposalid;
 }
 

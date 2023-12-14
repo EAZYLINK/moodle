@@ -22,17 +22,17 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package local_esupervision
  */
-require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 require_login();
 
 $context = context_system::instance();
 // Set up the page context and layout
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('popup');
+$PAGE->set_pagelayout('standard');
 $PAGE->set_title('Project proposal');
 $PAGE->set_heading('Project proposal');
-$PAGE->set_url("/local/esupervision/project/proposals.php");
+$PAGE->set_url("/local/esupervision/proposals.php");
 
 global $home_url, $download_url;
 navigation_node::override_active_url(new moodle_url('/local/esupervision/project/proposals.php'));
@@ -46,13 +46,12 @@ $fs = get_file_storage();
 $comments = array();
 
 $proposal_form = new \local_esupervision\form\proposal_form();
-$update_form = new \local_esupervision\form\updateproposalform();
 $comment_form = new \local_esupervision\form\comment_form();
 
 if (!$action) {
 	$home_url = new moodle_url('/local/esupervision/index.php');
 } elseif ($action) {
-	$home_url = new moodle_url('/local/esupervision/project/proposals.php');
+	$home_url = new moodle_url('/local/esupervision/proposals.php');
 }
 $htmlstring = '<a href="' . $home_url . '" class="btn btn-primary mb-4">Back</a>';
 
@@ -60,6 +59,7 @@ echo $OUTPUT->header();
 echo $htmlstring;
 if ($allowpost) {
 	if (!$action) {
+		$proposal_form->add_action_buttons(true, 'Submit proposal');
 		$proposal_form->display();
 	}
 	if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$action) {
@@ -71,65 +71,76 @@ if ($allowpost) {
 			);
 		} elseif ($proposal_form->get_data()) {
 			$data = $proposal_form->get_data();
-			$filename = $proposal_form->get_new_filename('proposal_document');
-			$data->filename = $filename;
-			$data->studentid = $USER->id;
-			$submissionid = submit_proposal($data);
-			if ($submissionid) {
-				$fileinfo = array(
-					'contextid' => $context->id,
-					'component' => 'local_esupervision',
-					'filearea' => 'proposals',
-					'itemid' => $submissionid,
-					'filepath' => '/',
-					'filename' => $filename,
-				);
-				$fs->create_file_from_string($fileinfo, 'proposal proposal');
-				redirect(
-					$PAGE->url,
-					'proposal submitted successfully!',
-					null,
-					\core\output\notification::NOTIFY_SUCCESS
-				);
+			if (!$data->id) {
+				$filename = $proposal_form->get_new_filename('proposal_document');
+				$data->filename = $filename;
+				$data->studentid = $USER->id;
+				$filepath = 'uploads/' . $filename;
+				$proposal_form->save_file('proposal_document', $filepath);
+				$submissionid = submit_proposal($data);
+				if ($submissionid) {
+					$fileinfo = array(
+						'contextid' => $context->id,
+						'component' => 'local_esupervision',
+						'filearea' => 'proposals',
+						'itemid' => $submissionid,
+						'filepath' => '/',
+						'filename' => $filename,
+					);
+					$fs->create_file_from_pathname($fileinfo, $filepath);
+					unlink($filepath);
+					redirect(
+						$PAGE->url,
+						'proposal submitted successfully!',
+						null,
+						\core\output\notification::NOTIFY_SUCCESS
+					);
+				} else {
+					redirect(
+						$PAGE->url,
+						'Error submitting proposal!',
+						\core\output\notification::NOTIFY_ERROR
+					);
+				}
 			} else {
-				redirect(
-					$PAGE->url,
-					'Error submitting proposal!',
-					\core\output\notification::NOTIFY_ERROR
-				);
-			}
-		}
-		if ($comment_form->is_cancelled()) {
-			redirect(
-				$PAGE->url,
-				'Comment submission cancelled',
-				\core\output\notification::NOTIFY_WARNING
-			);
-		} elseif ($comment_form->get_data()) {
-			$data = $comment_form->get_data();
-			$data->supervisorid = $USER->id;
-			$data->type = 'proposal';
-			$commentid = submit_comment($data);
-			if ($commentid) {
-				redirect(
-					$PAGE->url,
-					'Comment submitted successfully!',
-					\core\output\notification::NOTIFY_SUCCESS
-				);
-			} else {
-				redirect(
-					$PAGE->url,
-					'Error submitting comment!',
-					\core\output\notification::NOTIFY_ERROR
-				);
+				$filename = $proposal_form->get_new_filename('proposal_document');
+				$data->filename = $filename;
+				$data->studentid = $USER->id;
+				$filepath = 'uploads/' . $filename;
+				$fs->delete_area_files($context->id, 'local_esupervision', 'proposals', $data->id);
+				$proposal_form->save_file('proposal_document', $filepath);
+				$submissionid = update_proposal($data);
+				if ($submissionid) {
+					$fileinfo = array(
+						'contextid' => $context->id,
+						'component' => 'local_esupervision',
+						'filearea' => 'proposals',
+						'itemid' => $data->id,
+						'filepath' => '/',
+						'filename' => $filename,
+					);
+					$fs->create_file_from_pathname($fileinfo, $filepath);
+					unlink($filepath);
+					redirect(
+						$PAGE->url,
+						'proposal updated successfully!',
+						null,
+						\core\output\notification::NOTIFY_SUCCESS
+					);
+				} else {
+					redirect(
+						$PAGE->url,
+						'Error updating proposal!',
+						\core\output\notification::NOTIFY_ERROR
+					);
+				}
 			}
 		}
 	} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
 		$proposals = get_proposal_by_studentid($USER->id);
 		foreach ($proposals as $proposal) {
 			$comments = get_comments_by_submissionid($proposal->id);
-			$files = $fs->get_area_files($context->id, 'local_esupervision', 'proposals', $proposal->id, false);
-			$file = reset($files);
+			$file = $fs->get_file($context->id, 'local_esupervision', 'proposals', $proposal->id, '/', $proposal->filename);
 			if ($file) {
 				$download_url = moodle_url::make_pluginfile_url(
 					$file->get_contextid(),
@@ -151,17 +162,29 @@ if ($allowpost) {
 		echo $OUTPUT->render_from_template('local_esupervision/proposals', $data);
 	} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $action == 'edit' && $id) {
 		$proposal = get_proposal_by_proposalid($id);
-		$update_form->set_data($proposal);
-		$update_form->display();
-		if ($update_form->is_cancelled()) {
+		$draftfileid = file_get_submitted_draft_itemid('proposal_document');
+		file_prepare_draft_area(
+			$draftfileid,
+			$context->id,
+			'local_esupervision',
+			'proposals',
+			$proposal->id,
+			array('subdirs' => true),
+			$proposal->filename
+		);
+		$proposal->proposal_document = $draftfileid;
+		$proposal_form->set_data($proposal);
+		$proposal_form->add_action_buttons(true, 'Update proposal');
+		$proposal_form->display();
+		if ($proposal_form->is_cancelled()) {
 			redirect(
 				$PAGE->url,
 				'proposal submission cancelled',
 				\core\output\notification::NOTIFY_WARNING
 			);
-		} elseif ($update_form->get_data()) {
-			$data = $update_form->get_data();
-			$filename = $update_form->get_new_filename('proposal_document');
+		} elseif ($proposal_form->get_data()) {
+			$data = $proposal_form->get_data();
+			$filename = $proposal_form->get_new_filename('proposal_document');
 			$data->filename = $filename;
 			$data->studentid = $USER->id;
 			$proposalid = update_proposal($data);
@@ -180,6 +203,7 @@ if ($allowpost) {
 			}
 		}
 	} else if ($action == 'delete' && $id) {
+		$fs->delete_area_files($context->id, 'local_esupervision', 'proposals', $id);
 		$proposalid = delete_proposal($id);
 		if ($proposalid) {
 			redirect(
@@ -199,6 +223,31 @@ if ($allowpost) {
 
 
 if ($allowview && $approveproposal) {
+	if ($comment_form->is_cancelled()) {
+		redirect(
+			$PAGE->url,
+			'Comment submission cancelled',
+			\core\output\notification::NOTIFY_WARNING
+		);
+	} elseif ($comment_form->get_data()) {
+		$data = $comment_form->get_data();
+		$data->supervisorid = $USER->id;
+		$data->type = 'proposal';
+		$commentid = submit_comment($data);
+		if ($commentid) {
+			redirect(
+				$PAGE->url,
+				'Comment submitted successfully!',
+				\core\output\notification::NOTIFY_SUCCESS
+			);
+		} else {
+			redirect(
+				$PAGE->url,
+				'Error submitting comment!',
+				\core\output\notification::NOTIFY_ERROR
+			);
+		}
+	}
 	if (!$action) {
 		$proposals = get_all_proposals_by_groupid($USER->idnumber);
 		foreach ($proposals as $proposal) {
@@ -232,9 +281,9 @@ if ($allowview && $approveproposal) {
 						false
 					);
 					if ($download_url) {
-						$proposal['url'] = $download_url;
+						$proposal->url = $download_url;
 					} else {
-						$proposal['url'] = null;
+						$proposal->url = null;
 					}
 				}
 			}

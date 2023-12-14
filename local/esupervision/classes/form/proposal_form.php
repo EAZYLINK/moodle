@@ -49,50 +49,8 @@ class proposal_form extends \moodleform
         );
         $mform->setType('proposal_document', PARAM_FILE);
         $mform->addRule('proposal_document', 'required', 'required', null, 'client');
-        $this->add_action_buttons($cancel = true, $submitlabel = 'submit proposal');
-    }
-
-    public function validation($data, $files)
-    {
-        $errors = parent::validation($data, $files);
-        if (empty($data['description'])) {
-            $errors['description'] = get_string('error_required', 'local_esupervision');
-        } elseif (!empty($files['proposal_document']['name'])) {
-            $fileinfo = $files['proposal_document'];
-            if ($fileinfo['error'] != UPLOAD_ERR_OK) {
-                $errors['proposal_document'] = "failed to upload document";
-            }
-        }
-        return $errors;
-    }
-}
-
-class updateproposalform extends \moodleform
-{
-    public function definition()
-    {
-        $mform = $this->_form;
-        $mform->addElement('text', 'title', 'proposal Title:');
-        $mform->setType('title', PARAM_TEXT);
-        $mform->addRule('title', 'required', 'required', null, 'client');
-        $mform->addElement('textarea', 'description', 'Proposal Description:', ['rows' => '5', 'cols' => '50']);
-        $mform->setType('description', PARAM_TEXT);
-        $mform->addElement(
-            'filepicker',
-            'proposal_document',
-            'proposal Document:',
-            null,
-            null,
-            [
-                'subdirs' => 0,
-                'areamaxbytes' => 10485760,
-                'maxfiles' => 50,
-                'accepted_types' => ['doc', 'pdf'],
-            ]
-        );
-        $mform->setType('proposal_document', PARAM_FILE);
-        $mform->addRule('proposal_document', 'required', 'required', null, 'client');
-        $this->add_action_buttons($cancel = true, $submitlabel = 'update proposal');
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
     }
 
     public function validation($data, $files)

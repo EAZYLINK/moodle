@@ -37,29 +37,8 @@ class topic_form extends \moodleform
         $mform->addElement('textarea', 'description', 'Topic Descrption:');
         $mform->setType('description', PARAM_TEXT);
         $mform->addRule('description', 'required', 'required', null, 'client');
-        $this->add_action_buttons($cancel = true, $submitlabel = 'submit Topic');
-    }
-    public function validation($data, $files)
-    {
-        $errors = parent::validation($data, $files);
-        return $errors;
-    }
-}
-
-class updatetopicform extends \moodleform
-{
-    public function definition()
-    {
-        $mform = $this->_form;
-        $mform->addElement('text', 'topic', 'Project Topic:');
-        $mform->setType('topic', PARAM_TEXT);
-        $mform->addRule('topic', 'required', 'required', null, 'client');
-        $mform->addElement('textarea', 'description', 'Topic Descrption:');
-        $mform->setType('description', PARAM_TEXT);
-        $mform->addRule('description', 'required', 'required', null, 'client');
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $this->add_action_buttons($cancel = true, $submitlabel = 'Update Topic');
     }
     public function validation($data, $files)
     {

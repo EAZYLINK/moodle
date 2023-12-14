@@ -38,22 +38,22 @@ echo $OUTPUT->header();
 $topic = new stdClass();
 $topic->title = 'Topics';
 $topic->content = "view and manage topics";
-$topic->url = new moodle_url("/local/esupervision/project/topics.php");
+$topic->url = new moodle_url("/local/esupervision/topics.php");
 
 $proposal = new stdClass();
 $proposal->title = "Proposals";
 $proposal->content = "view and manage proposals";
-$proposal->url = new moodle_url("/local/esupervision/project/proposals.php");
+$proposal->url = new moodle_url("/local/esupervision/proposals.php");
 
 $report = new stdClass();
 $report->title = 'Reports';
 $report->content = "view and manage reports";
-$report->url = new moodle_url("/local/esupervision/project/reports.php");
+$report->url = new moodle_url("/local/esupervision/reports.php");
 
 $grade = new stdClass();
 $grade->title = 'Grades';
 $grade->content = "view and manage grades";
-$grade->url = new moodle_url("/local/esupervision/project/grading.php");
+$grade->url = new moodle_url("/local/esupervision/grading.php");
 
 
 $name = $USER->firstname . " " . $USER->lastname;
