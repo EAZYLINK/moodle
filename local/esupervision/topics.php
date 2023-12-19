@@ -34,8 +34,6 @@ $PAGE->set_title('Topics');
 $PAGE->set_url("/local/esupervision/topics.php");
 
 
-$topic = get_topic_list();
-$topic['topic'] = array_values($topic);
 $context = context_user::instance($USER->id);
 $allowpost = has_capability('local/esupervision:submittopic', $context);
 $allowview = has_capability('local/esupervision:approvetopic', $context);
@@ -50,7 +48,7 @@ echo $OUTPUT->header();
 if (!$action) {
     $home_url = new moodle_url('/local/esupervision/index.php');
 } elseif ($action) {
-    $home_url = new moodle_url('/local/esupervision/topic.php');
+    $home_url = new moodle_url('/local/esupervision/topics.php');
 }
 $htmlstring = '<a href="' . $home_url . '" class="btn btn-primary mb-4">Back</a>';
 
@@ -75,6 +73,7 @@ if ($allowpost) {
             // Handle form successful operation, if any
             $data = $topicform->get_data();
             $data->studentid = $USER->id;
+            $data->groupid = $USER->idnumber;
             if (!$data->id) {
                 $topic_id = submit_topic($data);
                 if ($topic_id) {
@@ -115,6 +114,10 @@ if ($allowpost) {
 
     } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
         $topics = get_topic_by_studentid($USER->id);
+        foreach ($topics as $topic) {
+            $comments = get_comments_by_submissionid($topic->id);
+            $topic->comments = array_values($comments);
+        }
         $data = array(
             'issupervisor' => false,
             'topics' => array_values($topics),
@@ -144,20 +147,29 @@ if ($allowpost) {
 
 if ($allowview) {
     if ($comment_form->is_cancelled()) {
-        redirect($PAGE->url . '?action=view&id=' . $id, 'form cancelled', \core\output\notification::NOTIFY_WARNING);
+        redirect($PAGE->url, 'form cancelled', \core\output\notification::NOTIFY_WARNING);
     } elseif ($fromform = $comment_form->get_data()) {
         // Handle form successful operation, if any
         $data = $comment_form->get_data();
         $data->type = 'topic';
-        $comment_id = submit_comment($data);
-        if ($comment_id) {
-            redirect($PAGE->url, 'comment submitted', \core\output\notification::NOTIFY_SUCCESS);
+        if (!$data->id) {
+            $comment_id = submit_comment($data);
+            if ($comment_id) {
+                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'comment submitted successfully', \core\output\notification::NOTIFY_SUCCESS);
+            } else {
+                redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
+            }
         } else {
-            redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
+            $comment_id = update_comment($data);
+            if ($comment_id) {
+                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'comment updated successfully', \core\output\notification::NOTIFY_SUCCESS);
+            } else {
+                redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
+            }
         }
     }
     if (!$action) {
-        $topics = get_topic_list();
+        $topics = get_topic_by_groupid($USER->idnumber);
         foreach ($topics as $key => $topic) {
             $user = get_user_by_id($topic->studentid);
             $topics[$key]->studentname = $user->firstname . ' ' . $user->lastname;
@@ -171,11 +183,13 @@ if ($allowview) {
     } elseif ($action) {
         if ($action == 'view' && $id) {
             $topic = get_topic_by_topicid($id);
-            $user = get_user_by_id($topic[$id]->studentid);
-            $topic[$id]->studentname = $user->firstname . ' ' . $user->lastname;
+            $user = get_user_by_id($topic->studentid);
+            $topic->studentname = $user->firstname . ' ' . $user->lastname;
+            $comments = get_comments_by_submissionid($topic->id);
+            $topic->comments = array_values($comments);
             $data = array(
                 'viewtopic' => true,
-                'topic' => array_values($topic),
+                'topic' => $topic,
             );
             echo $OUTPUT->render_from_template('local_esupervision/topic', $data);
             $comment = new stdClass();
@@ -183,24 +197,47 @@ if ($allowview) {
             $comment_form->set_data($comment);
             $comment_form->add_action_buttons(true, "Submit Comment");
             $comment_form->display();
-            if ($action == 'approve') {
-                $approve = approve_topic($id);
-                if ($approve) {
-                    redirect($PAGE->url, 'topic approved successfully');
 
-                } else {
-                    redirect($PAGE->url, 'an error occured');
+        } elseif ($action == 'approve') {
+            $approve = approve_topic($id);
+            if ($approve) {
+                redirect($PAGE->url, 'topic approved successfully');
 
-                }
-            } elseif ($action == 'reject') {
-                $reject = reject_topic($id);
-                if ($reject) {
-                    redirect($PAGE->url, 'topic rejected successfully');
-                } else {
-                    redirect($PAGE->url, 'an error occured');
+            } else {
+                redirect($PAGE->url, 'an error occured');
 
-                }
             }
+        } elseif ($action == 'reject') {
+            $reject = reject_topic($id);
+            if ($reject) {
+                redirect($PAGE->url, 'topic rejected successfully');
+            } else {
+                redirect($PAGE->url, 'an error occured');
+
+            }
+        } elseif ($action == 'reject') {
+            $reject = reject_topic($id);
+            if ($reject) {
+                redirect($PAGE->url, 'topic rejected successfully');
+            } else {
+                redirect($PAGE->url, 'an error occured');
+
+            }
+        } elseif ($action == 'deletecomment' && $id) {
+            $comment = get_comments_by_id($id);
+            $deleteId = delete_comment($id);
+            if ($deleteId) {
+                redirect($PAGE->url . '?action=view&id=' . $comment->submissionid, 'comment deleted successfully');
+
+            } else {
+                redirect($PAGE->url . '?action=view&id=' . $comment->submissionid, 'an error occured');
+
+            }
+        } elseif ($action == 'editcomment' && $id) {
+            $comment = get_comments_by_id($id);
+            $comment_form->add_action_buttons(true, 'Update comment');
+            $comment_form->set_data($comment);
+            $comment_form->display();
         }
     }
 }

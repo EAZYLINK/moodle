@@ -170,5 +170,18 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-
+    'local/esupervision:viewchat' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'user' => CAP_ALLOW
+        )
+    ),
+    'local/esupervision:managechat' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
 );

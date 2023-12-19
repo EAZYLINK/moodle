@@ -78,22 +78,23 @@
         <div class="row">
             {{#proposals}}
             <div class="max-auto card m-3">
+                <div class="card-header my-2"><strong>Title: </strong> {{ title }}</div>
                 <div class="card-body">
-                    <div class="card-text my-2"><span style="font-weight: bold;">Title: </span> {{ title }}</div>
-                    <div class="card-text"><span style="font-weight: bold;">Description: </span> {{ description }}</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">timecreated:  <span class="badge badge-secondary"> {{timecreated}}</span></li>
-                        <li class="list-group-item">timemodified:  <span class="badge badge-secondary">{{timemodified}}</span></li>
-                    </ul>
+                    <div class="card-text my-2"><strong>Description: </strong> {{ description }}</div>
+                    <small>timecreated:  <span class="badge badge-secondary"> {{timecreated}}</span></small><br>
+                    <small>timemodified:  <span class="badge badge-secondary">{{timemodified}}</span></small><br>
                     <a href="{{url}}">download report</a>
-                    <div class="text-right">
-                        <a href="?action=edit&id={{ id }}" class="btn"><img src="../assets/edit.png"></a>
-                        <a href="?action=delete&id={{ id }}" class="btn"><img src="../assets/delete.png"></a>
-                    </div>
-                </div>
                 {{#comments}}
-                <div><span style="font-weight: bold;">Supervisor's comment:</span> {{comment}}</div>
+                <div class="card mt-2">
+                <div class="card-header"><strong>Supervisor's comment:</strong></div>
+                 <div class="card-text px-2">{{comment}} <span class="badge badge-secondary">{{timecreated}}</span></div>
+                </div>
                 {{/comments}}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="?action=edit&id={{ id }}" class="btn mx-3"><img src="assets/edit.png"></a>
+                    <a href="?action=delete&id={{ id }}" class="btn mx-3"><img src="assets/delete.png"></a>
+                </div>
             </div>
             {{/proposals}}
         </div>
@@ -106,15 +107,26 @@
         <div class="rol">
             {{#proposal}}
             <div class="card mb-3 col-5">
-                    <div class="card-header border-0"><span style="font-weight: bold;">Title:</span> {{ title }}</div>
-                    <div class="card-text my-2"><span style="font-weight: bold;">Description</span> {{ description }}</div>
-                    <div class="card-text my-2"><span style="font-weight: bold;">Student name:</span>  {{ studentname }}</div>
-                    <small class="card-text my-2"><span style="font-weight: bold;">Time created:</span> {{timecreated}}</small>
-                    <small class="card-text my-2"><span style="font-weight: bold;">Last modified:</span>  {{timemodified}}</small>
-                    <a href="{{url}}" class="my-2">Download proposal</a>
+                    <div class="card-header border-0"><strong>Title:</strong> {{ title }}</div>
+                    <div class="card-body">
+                        <div class="card-text my-2"><strong>Description</strong> {{ description }}</div>
+                        <div class="card-text my-2"><strong>Student name:</strong>  {{ studentname }}</div>
+                        <a href="{{url}}" class="my-3">Download proposal</a>
+                        <small class="card-text my-2">Time created: <span class="badge badge-secondary">{{timecreated}}</span></small><br>
+                        <small class="card-text my-2">Last modified:  <span class="badge badge-secondary">{{timemodified}}</span></small><br>
+                        {{#comments}}
+                        <div class="card mt-2">
+                        <div class="card-header"><strong>Comments:</strong></div>
+                        <div class="card-text px-2">* {{comment}} <span class="badge badge-secondary ms-3">{{timecreated}}</span>
+                            <a href="?action=editcomment&id={{ id }}" class="btn mx-3"><img src="assets/edit.png"></a>
+                            <a href="?action=deletecomment&id={{ id }}" class="btn mx-3"><img src="assets/delete.png"></a>
+                        </div>
+                        </div>
+                        {{/comments}}
+                    </div>
                     <div class="card-footer text-center border-0">
-                        <a href="?action=approve&id={{ id }}" class="btn btn-outline-primary mx-2">Approve proposal</a>
-                        <a href="?action=reject&id={{ id }}" class="btn btn-outline-danger mx-2">Reject proposal</a>
+                        <a href="?action=approve&id={{ id }}" class="btn btn-outline-primary mx-2">Approve</a>
+                        <a href="?action=reject&id={{ id }}" class="btn btn-outline-danger mx-2">Reject</a>
                     </div>
             </div>
             {{/proposal}}

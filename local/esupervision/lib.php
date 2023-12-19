@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 // Include necessary files
 require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/mod/chat/lib.php');
 
 function submit_topic($data)
 {
@@ -35,6 +36,7 @@ function submit_topic($data)
     $newTopic = new stdClass();
     $newTopic->topic = $data->topic;
     $newTopic->studentid = $data->studentid;
+    $newTopic->groupid = $data->groupid;
     $newTopic->description = $data->description;
     $newTopic->status = 'pending';
     $newTopic->timecreated = date('Y-m-d H:i:s');
@@ -59,7 +61,7 @@ function get_topic_by_topicid($id)
     global $DB;
     $sql = 'SELECT * FROM {esupervision_projecttopics} WHERE id = ' . $id;
     $params = array($id);
-    $topic = $DB->get_records_sql($sql, $params);
+    $topic = $DB->get_record_sql($sql, $params);
     return $topic;
 }
 
@@ -183,11 +185,13 @@ function approve_report($id)
 }
 
 
-function get_topic_list()
+function get_topic_by_groupid($groupid)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
-    $topic = $DB->get_records($table);
+    $topictable = 'esupervision_projecttopics';
+    $sql = 'SELECT * FROM {' . $topictable . '} WHERE groupid = :groupid';
+    $params = array('groupid' => $groupid);
+    $topic = $DB->get_records_sql($sql, $params);
     return $topic;
 }
 
@@ -232,6 +236,31 @@ function get_comments_by_submissionid($id)
     return $comments;
 }
 
+function get_comments_by_id($id)
+{
+    global $DB;
+    $table = 'esupervision_comments';
+    $sql = 'SELECT * FROM {' . $table . '} WHERE id= ' . $id;
+    $comment = $DB->get_record_sql($sql, array($id));
+    return $comment;
+}
+
+function update_comment($data)
+{
+    global $DB;
+    $table = 'esupervision_comments';
+    $updateid = $DB->update_record($table, $data);
+    return $updateid;
+}
+
+function delete_comment($id)
+{
+    global $DB;
+    $table = 'esupervision_comments';
+    $delete_commentid = $DB->delete_records($table, array('id' => $id));
+    return $delete_commentid;
+}
+
 function get_user_by_id($id)
 {
     global $DB;
@@ -247,7 +276,7 @@ function submit_proposal($data)
     $newProposal = new stdClass();
     $newProposal->title = $data->title;
     $newProposal->studentid = $data->studentid;
-    $newProposal->supervisorid = 3;
+    $newProposal->groupid = $data->groupid;
     $newProposal->description = $data->description;
     $newProposal->filename = $data->filename;
     $newProposal->status = 'pending';
@@ -261,16 +290,16 @@ function get_all_proposals_by_groupid($groupid)
 {
     global $DB;
     $table = 'esupervision_projectproposals';
-    $sql = `SELECT * FROM {$table} WHERE groupid = $groupid`;
-    $proposals = $DB->get_records($table);
+    $sql = 'SELECT * FROM {' . $table . '} WHERE groupid = :groupid';
+    $proposals = $DB->get_records_sql($sql, array('groupid' => $groupid));
     return $proposals;
 }
 function get_proposal_by_studentid($id)
 {
     global $DB;
     $table = 'esupervision_projectproposals';
-    $sql = 'SELECT * FROM {' . $table . '} WHERE studentid = ' . $id;
-    $param = array($id);
+    $sql = 'SELECT * FROM {' . $table . '} WHERE studentid = :id';
+    $param = array('id' => $id);
     $proposal = $DB->get_records_sql($sql, $param);
     return $proposal;
 }
@@ -364,4 +393,44 @@ function local_esupervision_pluginfile(
         return false;
     }
     send_stored_file($file, 0, 0, true, $options);
+}
+
+function local_esupervision_create_chatroom($courseid, $chatroomname)
+{
+    global $DB;
+
+    $chat = new stdClass();
+    $chat->course = $courseid;
+    $chat->name = $chatroomname;
+    $chat->intro = 'Chat room for' . $chatroomname;
+    $chat->introformat = FORMAT_MOODLE;
+    $chat->keepdays = 365;
+    $chat->studentlogs = 1;
+    $chat->chattime = 0;
+    $chat->timemodified = time();
+
+    $chat->id = $DB->insert_record('chat', $chat);
+
+    return $chat->id;
+}
+
+function local_esupervision_display_chat($chatid)
+{
+    global $CFG, $OUTPUT, $DB, $USER;
+
+    if (!file_exists($CFG->dirroot . '/mod/chat/lib.php')) {
+        throw new moodle_exception('chatmodulemissing', 'local_esupervision');
+    }
+
+    require_once($CFG->dirroot . '/mod/chat/lib.php');
+
+    if (!$chat = $DB->get_record('chat', array('id' => $chatid))) {
+        throw new moodle_exception('invalidchatid', 'local_esupervision', '', $chatid);
+    }
+    // require_capability('local/esupervision:viewchat', context_system::instance());
+
+    echo $OUTPUT->header();
+    chat_print_chat_script($chat);
+    chat_print_chat_header($chat, $USER->id, false, 0, false);
+    echo $OUTPUT->footer();
 }

@@ -25,6 +25,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 require_login();
+global $USER;
 
 $context = context_system::instance();
 // Set up the page context and layout
@@ -74,6 +75,7 @@ if ($allowpost) {
 			if (!$data->id) {
 				$filename = $proposal_form->get_new_filename('proposal_document');
 				$data->filename = $filename;
+				$data->groupid = $USER->idnumber;
 				$data->studentid = $USER->id;
 				$filepath = 'uploads/' . $filename;
 				$proposal_form->save_file('proposal_document', $filepath);
@@ -176,32 +178,6 @@ if ($allowpost) {
 		$proposal_form->set_data($proposal);
 		$proposal_form->add_action_buttons(true, 'Update proposal');
 		$proposal_form->display();
-		if ($proposal_form->is_cancelled()) {
-			redirect(
-				$PAGE->url,
-				'proposal submission cancelled',
-				\core\output\notification::NOTIFY_WARNING
-			);
-		} elseif ($proposal_form->get_data()) {
-			$data = $proposal_form->get_data();
-			$filename = $proposal_form->get_new_filename('proposal_document');
-			$data->filename = $filename;
-			$data->studentid = $USER->id;
-			$proposalid = update_proposal($data);
-			if ($proposalid) {
-				redirect(
-					$PAGE->url,
-					'proposal submitted successfully!',
-					\core\output\notification::NOTIFY_SUCCESS
-				);
-			} else {
-				redirect(
-					$PAGE->url,
-					'Error submitting proposal!',
-					\core\output\notification::NOTIFY_ERROR
-				);
-			}
-		}
 	} else if ($action == 'delete' && $id) {
 		$fs->delete_area_files($context->id, 'local_esupervision', 'proposals', $id);
 		$proposalid = delete_proposal($id);
@@ -231,25 +207,45 @@ if ($allowview && $approveproposal) {
 		);
 	} elseif ($comment_form->get_data()) {
 		$data = $comment_form->get_data();
-		$data->supervisorid = $USER->id;
-		$data->type = 'proposal';
-		$commentid = submit_comment($data);
-		if ($commentid) {
-			redirect(
-				$PAGE->url,
-				'Comment submitted successfully!',
-				\core\output\notification::NOTIFY_SUCCESS
-			);
+		if (!$data->id) {
+			$data->supervisorid = $USER->id;
+			$data->type = 'proposal';
+			$commentid = submit_comment($data);
+			if ($commentid) {
+				redirect(
+					$PAGE->url,
+					'Comment submitted successfully!',
+					\core\output\notification::NOTIFY_SUCCESS
+				);
+			} else {
+				redirect(
+					$PAGE->url,
+					'Error submitting comment!',
+					\core\output\notification::NOTIFY_ERROR
+				);
+			}
 		} else {
-			redirect(
-				$PAGE->url,
-				'Error submitting comment!',
-				\core\output\notification::NOTIFY_ERROR
-			);
+			$data->supervisorid = $USER->id;
+			$data->type = 'proposal';
+			$commentid = update_comment($data);
+			if ($commentid) {
+				redirect(
+					$PAGE->url,
+					'Comment updated successfully!',
+					\core\output\notification::NOTIFY_SUCCESS
+				);
+			} else {
+				redirect(
+					$PAGE->url,
+					'Error updating comment!',
+					\core\output\notification::NOTIFY_ERROR
+				);
+			}
 		}
 	}
 	if (!$action) {
 		$proposals = get_all_proposals_by_groupid($USER->idnumber);
+		var_dump($proposals);
 		foreach ($proposals as $proposal) {
 			$student = get_user_by_id($proposal->studentid);
 			if ($student) {

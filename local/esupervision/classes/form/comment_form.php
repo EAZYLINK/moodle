@@ -40,6 +40,8 @@ class comment_form extends \moodleform
         $mform->setType('comment', PARAM_TEXT);
         $mform->addElement('hidden', 'submissionid');
         $mform->setType('submissionid', PARAM_INT);
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
     }
 
     public function validation($data, $files)
@@ -47,9 +49,6 @@ class comment_form extends \moodleform
         $errors = parent::validation($data, $files);
         if (empty($data['comment'])) {
             $errors['comment'] = get_string('error_required', 'local_esupervision');
-        }
-        if ($data['comment'] < 10) {
-            $errors['comment'] = get_string('error_min_length', 'local_esupervision');
         }
         return $errors;
     }

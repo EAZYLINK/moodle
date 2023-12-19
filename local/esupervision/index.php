@@ -29,9 +29,8 @@ require_login();
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'local_esupervision'));
-$PAGE->set_pagelayout('popup');
+$PAGE->set_pagelayout('standard');
 $PAGE->set_url('/local/esupervision/index.php');
-
 
 echo $OUTPUT->header();
 
@@ -59,8 +58,8 @@ $grade->url = new moodle_url("/local/esupervision/grading.php");
 $name = $USER->firstname . " " . $USER->lastname;
 $pages = array($topic, $proposal, $report, $grade);
 $data = array(
-    "name" => $name,
-    "pages" => array_values($pages)
+  "name" => $name,
+  "pages" => array_values($pages)
 );
 echo $OUTPUT->render_from_template("local_esupervision/view", $data);
 echo $OUTPUT->footer();
