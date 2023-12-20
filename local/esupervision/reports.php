@@ -22,21 +22,20 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package local_esupervision
  */
-require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 require_login();
 
 $context = context_system::instance();
 // Set up the page context and layout
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('popup');
+$PAGE->set_pagelayout('standard');
 $PAGE->set_title('Project Report');
 $PAGE->set_heading('Project Report');
-$PAGE->set_url("/local/esupervision/project/reports.php");
+$PAGE->set_url("/local/esupervision/reports.php");
 
 global $home_url, $download_url;
 $report_form = new \local_esupervision\form\project_report();
-$update_form = new \local_esupervision\form\updatereportform();
 $allowpost = has_capability('local/esupervision:submitreport', $context);
 $allowview = has_capability('local/esupervision:viewreports', $context);
 $approvereport = has_capability('local/esupervision:approvereport', $context);
@@ -47,7 +46,7 @@ $fs = get_file_storage();
 if (!$action) {
     $home_url = new moodle_url('/local/esupervision/index.php');
 } elseif ($action) {
-    $home_url = new moodle_url('/local/esupervision/project/reports.php');
+    $home_url = new moodle_url('/local/esupervision/reports.php');
 }
 $htmlstring = '<a href="' . $home_url . '" class="btn btn-primary mb-4">Back</a>';
 
@@ -55,6 +54,7 @@ echo $OUTPUT->header();
 echo $htmlstring;
 if ($allowpost) {
     if (!$action) {
+        $report_form->add_action_buttons(true, 'Submit Report');
         $report_form->display();
     }
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$action) {
@@ -69,29 +69,63 @@ if ($allowpost) {
             $filename = $report_form->get_new_filename('project_document');
             $data->filename = $filename;
             $data->studentid = $USER->id;
-            $submissionid = submit_project_report($data);
-            if ($submissionid) {
-                $fileinfo = array(
-                    'contextid' => $context->id,
-                    'component' => 'local_esupervision',
-                    'filearea' => 'reports',
-                    'itemid' => $submissionid,
-                    'filepath' => '/',
-                    'filename' => $filename,
-                );
-                $fs->create_file_from_string($fileinfo, 'project report');
-                redirect(
-                    $PAGE->url,
-                    'Report submitted successfully!',
-                    null,
-                    \core\output\notification::NOTIFY_SUCCESS
-                );
+            $data->groupid = $USER->idnumber;
+            $fullpath = 'uploads/' . $filename;
+            if (!$data->id) {
+                $report_form->save_file('project_document', $fullpath);
+                $submissionid = submit_project_report($data);
+                if ($submissionid) {
+                    $fileinfo = array(
+                        'contextid' => $context->id,
+                        'component' => 'local_esupervision',
+                        'filearea' => 'reports',
+                        'itemid' => $submissionid,
+                        'filepath' => '/',
+                        'filename' => $filename,
+                    );
+                    $fs->create_file_from_pathname($fileinfo, $fullpath);
+                    unlink($fullpath);
+                    redirect(
+                        $PAGE->url,
+                        'Report submitted successfully!',
+                        null,
+                        \core\output\notification::NOTIFY_SUCCESS
+                    );
+                } else {
+                    redirect(
+                        $PAGE->url,
+                        'Error submitting Report!',
+                        \core\output\notification::NOTIFY_ERROR
+                    );
+                }
             } else {
-                redirect(
-                    $PAGE->url,
-                    'Error submitting Report!',
-                    \core\output\notification::NOTIFY_ERROR
-                );
+                $fs->delete_area_files($context->id, 'local_esupervision', 'reports', $data->id);
+                $report_form->save_file('project_document', $fullpath);
+                $submissionid = update_report($data);
+                if ($submissionid) {
+                    $fileinfo = array(
+                        'contextid' => $context->id,
+                        'component' => 'local_esupervision',
+                        'filearea' => 'reports',
+                        'itemid' => $data->id,
+                        'filepath' => '/',
+                        'filename' => $filename,
+                    );
+                    $fs->create_file_from_pathname($fileinfo, $fullpath);
+                    unlink($fullpath);
+                    redirect(
+                        $PAGE->url,
+                        'Report updated successfully!',
+                        null,
+                        \core\output\notification::NOTIFY_SUCCESS
+                    );
+                } else {
+                    redirect(
+                        $PAGE->url,
+                        'Error updating Report!',
+                        \core\output\notification::NOTIFY_ERROR
+                    );
+                }
             }
         }
     } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
@@ -101,6 +135,7 @@ if ($allowpost) {
             'reports' => array_values($report),
         );
         foreach ($report as $report) {
+            $comments = get_comments_by_submissionid($report->id);
             $file = $fs->get_file($context->id, 'local_esupervision', 'reports', $report->id, '/', $report->filename);
             if ($file) {
                 $download_url = moodle_url::make_pluginfile_url(
@@ -118,39 +153,20 @@ if ($allowpost) {
                     $report->url = null;
                 }
             }
+            $report->comments = $comments;
         }
         echo $OUTPUT->render_from_template('local_esupervision/reports', $data);
     } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $action == 'edit' && $id) {
         $report = get_report_by_reportid($id);
-        $update_form->set_data($report);
-        $update_form->display();
-        if ($update_form->is_cancelled()) {
-            redirect(
-                $PAGE->url,
-                'Project submission cancelled',
-                \core\output\notification::NOTIFY_WARNING
-            );
-        } elseif ($update_form->get_data()) {
-            $data = $update_form->get_data();
-            $filename = $update_form->get_new_filename('project_document');
-            $data->filename = $filename;
-            $data->studentid = $USER->id;
-            $projectid = update_project($data);
-            if ($projectid) {
-                redirect(
-                    $PAGE->url,
-                    'Project submitted successfully!',
-                    \core\output\notification::NOTIFY_SUCCESS
-                );
-            } else {
-                redirect(
-                    $PAGE->url,
-                    'Error submitting project!',
-                    \core\output\notification::NOTIFY_ERROR
-                );
-            }
-        }
+        $draftitemid = file_get_submitted_draft_itemid('project_document');
+        file_prepare_draft_area($draftitemid, $context->id, 'local_esupervision', 'reports', $report->id);
+        $report->project_document = $draftitemid;
+        $report_form->set_data($report);
+        $report_form->add_action_buttons(true, 'Update Report');
+        $report_form->display();
     } else if ($action == 'delete' && $id) {
+        $fs->delete_area_files($context->id, 'local_esupervision', 'reports', $id);
+        $commentid = delete_comment($id, 'report');
         $projectid = delete_report($id);
         if ($projectid) {
             redirect(
@@ -190,7 +206,7 @@ if ($allowview && $approvereport) {
             if ($student) {
                 $report->studentname = $student->firstname . ' ' . $student->lastname;
             }
-            $file = $fs->get_file($context->id, 'local_esupervision', 'reports', $report->id, '/', $report->id);
+            $file = $fs->get_file($context->id, 'local_esupervision', 'reports', $report->id, '/', $report->filename);
             if ($file) {
                 $download_url = moodle_url::make_pluginfile_url(
                     $file->get_contextid(),
@@ -202,9 +218,9 @@ if ($allowview && $approvereport) {
                     false
                 );
                 if ($download_url) {
-                    $report['url'] = $download_url;
+                    $report->url = $download_url;
                 } else {
-                    $report['url'] = null;
+                    $report->url = null;
                 }
             }
             $data = array(

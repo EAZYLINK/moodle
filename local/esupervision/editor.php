@@ -26,18 +26,68 @@
 require_once(__DIR__ . "/../../config.php");
 require_login();
 
-
-$PAGE->set_url(new moodle_url('/local/esupervision/editor.php'));
-$PAGE->set_context(context_system::instance());
+$url = new moodle_url('/local/esupervision/editor.php');
+$context = context_system::instance();
+$PAGE->set_url($url);
+$PAGE->set_context($context);
+$PAGE->set_pagelayout('standard');
 $PAGE->set_title('Editor');
 $PAGE->set_heading('Editor');
-$PAGE->set_pagelayout('standard');
 $PAGE->set_pagetype('editor');
 
-$editoroptions = array('maxfiles' => 1, 'maxbytes' => 10485760, 'context' => context_system::instance(), 'trusttext' => false, 'enable_filemanagement' => true, 'noclean' => true, 'enable_upload' => true, 'editor_height' => 400, 'editor_width' => '100%');
+$editoroptions = array(
+    'maxfiles' => 1,
+    'maxbytes' => 10485760,
+    'context' => context_system::instance(),
+    'trusttext' => false,
+    'enable_filemanagement' => true,
+    'noclean' => true,
+    'enable_upload' => true,
+    'editor_height' => 400,
+    'editor_width' => '100%'
+);
 
-$mform = new \local_esupervision\form\editor_form(null, array('editoroptions' => $editoroptions));
+$editorform = new \local_esupervision\form\editor_form(null, ['editoroptions' => $editoroptions]);
 
-$OUTPUT->header();
-$mform->display();
-$OUTPUT->footer();
+echo $OUTPUT->header();
+if ($editorform->is_cancelled()) {
+    redirect(
+        $PAGE->url,
+        'Submission cancelled',
+        null,
+        \core\output\notification::NOTIFY_WARNING
+    );
+} else if ($editorform->get_data()) {
+    global $DB;
+    $table = 'esupervision_editor';
+    $data = $editorform->get_data();
+    $editordata = new stdClass();
+    $editordata->content = $data->editor['text'];
+    $editordata->format = $data->editor['format'];
+    $editordata->createdby = $USER->firstname . ' ' . $USER->lastname;
+    $editorid = $DB->insert_record($table, $editordata);
+    if ($editorid) {
+        redirect(
+            $PAGE->url,
+            'Submission successful',
+            null,
+            \core\output\notification::NOTIFY_SUCCESS
+        );
+    } else {
+        redirect(
+            $PAGE->url,
+            'Error submitting data',
+            null,
+            \core\output\notification::NOTIFY_ERRROR
+        );
+    }
+}
+$editorform->add_action_buttons(true, 'Submit');
+$editorform->display();
+global $DB;
+$table = $table = 'esupervision_editor';
+$editordata = $DB->get_records($table);
+foreach ($editordata as $data) {
+    echo $data->content;
+}
+echo $OUTPUT->footer();

@@ -37,6 +37,17 @@ $PAGE->set_url("/local/esupervision/proposals.php");
 
 global $home_url, $download_url;
 navigation_node::override_active_url(new moodle_url('/local/esupervision/project/proposals.php'));
+$editoroptions = array(
+	'maxfiles' => 1,
+	'maxbytes' => 10485760,
+	'context' => context_system::instance(),
+	'trusttext' => false,
+	'enable_filemanagement' => true,
+	'noclean' => true,
+	'enable_upload' => true,
+	'editor_height' => 400,
+	'editor_width' => '100%'
+);
 
 $allowpost = has_capability('local/esupervision:submitproposal', $context);
 $allowview = has_capability('local/esupervision:viewproposals', $context);
@@ -47,11 +58,11 @@ $fs = get_file_storage();
 $comments = array();
 
 $proposal_form = new \local_esupervision\form\proposal_form();
-$comment_form = new \local_esupervision\form\comment_form();
+$feedback_form = new \local_esupervision\form\feedback_form(null, ['feedbackoptions' => $editoroptions]);
 
 if (!$action) {
 	$home_url = new moodle_url('/local/esupervision/index.php');
-} elseif ($action) {
+} else if ($action) {
 	$home_url = new moodle_url('/local/esupervision/proposals.php');
 }
 $htmlstring = '<a href="' . $home_url . '" class="btn btn-primary mb-4">Back</a>';
@@ -70,7 +81,7 @@ if ($allowpost) {
 				'Proposal submission cancelled',
 				\core\output\notification::NOTIFY_WARNING
 			);
-		} elseif ($proposal_form->get_data()) {
+		} else if ($proposal_form->get_data()) {
 			$data = $proposal_form->get_data();
 			if (!$data->id) {
 				$filename = $proposal_form->get_new_filename('proposal_document');
@@ -138,7 +149,7 @@ if ($allowpost) {
 				}
 			}
 		}
-	} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
+	} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
 		$proposals = get_proposal_by_studentid($USER->id);
 		foreach ($proposals as $proposal) {
 			$comments = get_comments_by_submissionid($proposal->id);
@@ -162,7 +173,7 @@ if ($allowpost) {
 			'proposals' => array_values($proposals),
 		);
 		echo $OUTPUT->render_from_template('local_esupervision/proposals', $data);
-	} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $action == 'edit' && $id) {
+	} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && $action == 'edit' && $id) {
 		$proposal = get_proposal_by_proposalid($id);
 		$draftfileid = file_get_submitted_draft_itemid('proposal_document');
 		file_prepare_draft_area(
@@ -180,6 +191,7 @@ if ($allowpost) {
 		$proposal_form->display();
 	} else if ($action == 'delete' && $id) {
 		$fs->delete_area_files($context->id, 'local_esupervision', 'proposals', $id);
+		$commentid = delete_comment($id, 'proposal');
 		$proposalid = delete_proposal($id);
 		if ($proposalid) {
 			redirect(
@@ -199,36 +211,39 @@ if ($allowpost) {
 
 
 if ($allowview && $approveproposal) {
-	if ($comment_form->is_cancelled()) {
+	if ($feedback_form->is_cancelled()) {
 		redirect(
 			$PAGE->url,
-			'Comment submission cancelled',
+			'Feedback submission cancelled',
+			null,
 			\core\output\notification::NOTIFY_WARNING
 		);
-	} elseif ($comment_form->get_data()) {
-		$data = $comment_form->get_data();
+	} else if ($feedback_form->get_data()) {
+		$data = $feedback_form->get_data();
 		if (!$data->id) {
 			$data->supervisorid = $USER->id;
 			$data->type = 'proposal';
-			$commentid = submit_comment($data);
-			if ($commentid) {
+			$feedbackid = submit_feeback($data);
+			if ($feedbackid) {
 				redirect(
 					$PAGE->url,
-					'Comment submitted successfully!',
+					'Feedback submitted successfully!',
+					null,
 					\core\output\notification::NOTIFY_SUCCESS
 				);
 			} else {
 				redirect(
 					$PAGE->url,
-					'Error submitting comment!',
+					'Error submitting feedback!',
+					null,
 					\core\output\notification::NOTIFY_ERROR
 				);
 			}
 		} else {
 			$data->supervisorid = $USER->id;
 			$data->type = 'proposal';
-			$commentid = update_comment($data);
-			if ($commentid) {
+			$feedbackid = update_feedback($data);
+			if ($feedbackid) {
 				redirect(
 					$PAGE->url,
 					'Comment updated successfully!',
@@ -237,7 +252,7 @@ if ($allowview && $approveproposal) {
 			} else {
 				redirect(
 					$PAGE->url,
-					'Error updating comment!',
+					'Error updating feedback!',
 					\core\output\notification::NOTIFY_ERROR
 				);
 			}
@@ -245,7 +260,6 @@ if ($allowview && $approveproposal) {
 	}
 	if (!$action) {
 		$proposals = get_all_proposals_by_groupid($USER->idnumber);
-		var_dump($proposals);
 		foreach ($proposals as $proposal) {
 			$student = get_user_by_id($proposal->studentid);
 			if ($student) {
@@ -257,7 +271,7 @@ if ($allowview && $approveproposal) {
 			'proposals' => array_values($proposals),
 		);
 		echo $OUTPUT->render_from_template('local_esupervision/proposals', $data);
-	} elseif ($action) {
+	} else if ($action) {
 		if ($action == 'view' && $id) {
 			$proposal = get_proposal_by_proposalid($id);
 			$student = get_user_by_id($proposal->studentid);
@@ -290,9 +304,19 @@ if ($allowview && $approveproposal) {
 			echo $OUTPUT->render_from_template('local_esupervision/proposals', $data);
 			$data = new stdClass();
 			$data->submissionid = $id;
-			$comment_form->set_data($data);
-			$comment_form->display();
-		} elseif ($action == 'approve' && $id) {
+			$feedback_form->add_action_buttons(true, 'Submit feedback');
+			$feedback_form->set_data($data);
+			$feedback_form->display();
+		} else if (!$action == 'editcomment' && $id) {
+			$comment = get_comments_by_id($id);
+			$data = new stdClass();
+			$data->id = $comment->id;
+			$data->submissionid = $comment->submissionid;
+			$data->feedback = $comment->feedback;
+			$feedback_form->add_action_buttons(true, 'Update feedback');
+			$feedback_form->set_data($data);
+			$feedback_form->display();
+		} else if ($action == 'approve' && $id) {
 			$approve = approve_proposal($id);
 			if ($approve) {
 				redirect(
@@ -307,7 +331,7 @@ if ($allowview && $approveproposal) {
 					\core\output\notification::NOTIFY_ERROR
 				);
 			}
-		} elseif ($action == 'reject' && $id) {
+		} else if ($action == 'reject' && $id) {
 			$reject = reject_proposal($id);
 			if ($reject) {
 				redirect(

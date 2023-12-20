@@ -18,7 +18,6 @@
 namespace local_esupervision\form;
 
 defined('MOODLE_INTERNAL') || die();
-
 /**
  * Feedback form for project supervision
  *
@@ -29,47 +28,21 @@ defined('MOODLE_INTERNAL') || die();
 
 
 require_once("$CFG->libdir/formslib.php");
-// class feedbackform extends \moodleform
-// {
-//     public function definition()
-//     {
-//         $mform = $this->_form;
-//         $mform->addElement('text', 'title', 'Feedback Title');
-//         $mform->setType('text', PARAM_NOTAGS);
-//         $mform->addRule('title', 'required', 'required', null, 'client');
-//         $mform->addElement('textarea', 'feedback_comments', 'Feedback Comments:', ['rows' => '5', 'cols' => '50']);
-//         $mform->addRule('feedback_comments', null, 'required', null, 'client');
-//         $mform->setType('feedback_comments', PARAM_NOTAGS);
-//         $mform->addElement('hidden', 'id');
-//         $mform->setType('id', PARAM_INT);
-//         $mform->addElement('submit', 'submitbtn', 'Submit Feedback');
-//     }
 
-//     public function validation($data, $files)
-//     {
-//         $errors = parent::validation($data, $files);
-//         if (empty($data['feedback_comments'])) {
-//             $errors['feedback_comments'] = get_string('error_required', 'local_esupervision');
-//         }
-//         if ($data['feedback_comments'] < 10) {
-//             $errors['feedback_comments'] = get_string('error_min_length', 'local_esupervision');
-//         }
-//         return $errors;
-//     }
-// }
-
-
-class commentform extends \moodleform
+class feedback_form extends \moodleform
 {
     public function definition()
     {
+        $feedbackoptions = $this->_customdata['feedbackoptions'];
         $mform = $this->_form;
-        $mform->addElement('textarea', 'comment', 'Comment:', ['rows' => '5', 'cols' => '50']);
-        $mform->addRule('comment', null, 'required', null, 'client');
-        $mform->setType('comment', PARAM_NOTAGS);
+        $mform->addElement('header', 'header', 'Comment', null, false);
+        $mform->addElement('editor', 'content', 'Feedback:', null, $feedbackoptions);
+        $mform->addRule('content', null, 'required', null, 'client');
+        $mform->setType('content', PARAM_RAW);
+        $mform->addElement('hidden', 'submissionid');
+        $mform->setType('submissionid', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $mform->addElement('submit', 'submitbtn', 'Submit Comment');
     }
 
     public function validation($data, $files)
@@ -77,9 +50,6 @@ class commentform extends \moodleform
         $errors = parent::validation($data, $files);
         if (empty($data['comment'])) {
             $errors['comment'] = get_string('error_required', 'local_esupervision');
-        }
-        if ($data['comment'] < 10) {
-            $errors['comment'] = get_string('error_min_length', 'local_esupervision');
         }
         return $errors;
     }

@@ -17,7 +17,7 @@
 
 namespace local_esupervision\form;
 
-defined('MOODLE_INTERNAL') || die();
+// defined('MOODLE_INTERNAL') || die();
 /**
  * Feedback form for project supervision
  *
@@ -29,28 +29,25 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
-class comment_form extends \moodleform
+class editor_form extends \moodleform
 {
     public function definition()
     {
+        $editoroptions = $this->_customdata['editoroptions'];
         $mform = $this->_form;
-        $mform->addElement('header', 'header', 'Comment', null, false);
-        $mform->addElement('textarea', 'comment', 'Comment:', array('rows' => 5, 'cols' => 5));
-        $mform->addRule('comment', null, 'required', null, 'client');
-        $mform->setType('comment', PARAM_TEXT);
-        $mform->addElement('hidden', 'submissionid');
-        $mform->setType('submissionid', PARAM_INT);
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $mform->addElement(
+            'editor',
+            'editor',
+            'Description',
+            null,
+            $editoroptions
+        );
+        $mform->setType('editor', PARAM_RAW);
+        $mform->addRule('editor', 'required', 'required', null, 'client');
     }
 
     public function validation($data, $files)
     {
-        $errors = parent::validation($data, $files);
-        if (empty($data['comment'])) {
-            $errors['comment'] = get_string('error_required', 'local_esupervision');
-        }
-        return $errors;
+
     }
 }
-

@@ -39,9 +39,20 @@ $allowpost = has_capability('local/esupervision:submittopic', $context);
 $allowview = has_capability('local/esupervision:approvetopic', $context);
 $id = optional_param('id', null, PARAM_INT);
 $action = optional_param('action', null, PARAM_ALPHA);
+$editoroptions = array(
+    'maxfiles' => 1,
+    'maxbytes' => 10485760,
+    'context' => context_system::instance(),
+    'trusttext' => false,
+    'enable_filemanagement' => true,
+    'noclean' => true,
+    'enable_upload' => true,
+    'editor_height' => 400,
+    'editor_width' => '100%'
+);
 
 $topicform = new \local_esupervision\form\topic_form();
-$comment_form = new \local_esupervision\form\comment_form();
+$feedback_form = new \local_esupervision\form\feedback_form(null, ['feedbackoptions' => $editoroptions]);
 
 echo $OUTPUT->header();
 
@@ -115,8 +126,8 @@ if ($allowpost) {
     } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
         $topics = get_topic_by_studentid($USER->id);
         foreach ($topics as $topic) {
-            $comments = get_comments_by_submissionid($topic->id);
-            $topic->comments = array_values($comments);
+            $feedbacks = get_feedbacks_by_submissionid($topic->id);
+            $topic->feedbacks = array_values($feedbacks);
         }
         $data = array(
             'issupervisor' => false,
@@ -146,23 +157,23 @@ if ($allowpost) {
 }
 
 if ($allowview) {
-    if ($comment_form->is_cancelled()) {
+    if ($feedback_form->is_cancelled()) {
         redirect($PAGE->url, 'form cancelled', \core\output\notification::NOTIFY_WARNING);
-    } elseif ($fromform = $comment_form->get_data()) {
+    } elseif ($fromform = $feedback_form->get_data()) {
         // Handle form successful operation, if any
-        $data = $comment_form->get_data();
+        $data = $feedback_form->get_data();
         $data->type = 'topic';
         if (!$data->id) {
-            $comment_id = submit_comment($data);
+            $comment_id = submit_feedback($data);
             if ($comment_id) {
-                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'comment submitted successfully', \core\output\notification::NOTIFY_SUCCESS);
+                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'feedback submitted successfully', \core\output\notification::NOTIFY_SUCCESS);
             } else {
                 redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
             }
         } else {
-            $comment_id = update_comment($data);
+            $comment_id = update_feedback($data);
             if ($comment_id) {
-                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'comment updated successfully', \core\output\notification::NOTIFY_SUCCESS);
+                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'feedback updated successfully', \core\output\notification::NOTIFY_SUCCESS);
             } else {
                 redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
             }
@@ -185,18 +196,18 @@ if ($allowview) {
             $topic = get_topic_by_topicid($id);
             $user = get_user_by_id($topic->studentid);
             $topic->studentname = $user->firstname . ' ' . $user->lastname;
-            $comments = get_comments_by_submissionid($topic->id);
-            $topic->comments = array_values($comments);
+            $feedbacks = get_feedbacks_by_submissionid($topic->id);
+            $topic->feedbacks = array_values($feedbacks);
             $data = array(
                 'viewtopic' => true,
                 'topic' => $topic,
             );
             echo $OUTPUT->render_from_template('local_esupervision/topic', $data);
-            $comment = new stdClass();
-            $comment->submissionid = $id;
-            $comment_form->set_data($comment);
-            $comment_form->add_action_buttons(true, "Submit Comment");
-            $comment_form->display();
+            $feedback = new stdClass();
+            $feedback->submissionid = $id;
+            $feedback_form->set_data($feedback);
+            $feedback_form->add_action_buttons(true, "Submit feedback");
+            $feedback_form->display();
 
         } elseif ($action == 'approve') {
             $approve = approve_topic($id);
@@ -224,20 +235,20 @@ if ($allowview) {
 
             }
         } elseif ($action == 'deletecomment' && $id) {
-            $comment = get_comments_by_id($id);
-            $deleteId = delete_comment($id);
+            $feedback = get_feedbacks_by_id($id);
+            $deleteId = delete_feedback($id);
             if ($deleteId) {
-                redirect($PAGE->url . '?action=view&id=' . $comment->submissionid, 'comment deleted successfully');
+                redirect($PAGE->url . '?action=view&id=' . $feedback->submissionid, 'feedback deleted successfully');
 
             } else {
-                redirect($PAGE->url . '?action=view&id=' . $comment->submissionid, 'an error occured');
+                redirect($PAGE->url . '?action=view&id=' . $feedback->submissionid, 'an error occured');
 
             }
         } elseif ($action == 'editcomment' && $id) {
-            $comment = get_comments_by_id($id);
-            $comment_form->add_action_buttons(true, 'Update comment');
-            $comment_form->set_data($comment);
-            $comment_form->display();
+            $feedback = get_feedbacks_by_id($id);
+            $feedback_form->add_action_buttons(true, 'Update feedback');
+            $feedback_form->set_data($feedback);
+            $feedback_form->display();
         }
     }
 }

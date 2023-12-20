@@ -59,22 +59,25 @@ Example context (json):
     <h4 class="mt-5">Submissions</h4>
     <div class="row">
         {{#reports}}
-        <div class="col-3 card mx-3">
-            <div class="card-body">
-                <div class="card-text my-2"><span style="font-weight: bold;">Title: </span> {{ title }}</div>
-                <div class="card-text"><span style="font-weight: bold;">Description: </span> {{ description }}</div>
-                <small class="card-text"><span style="font-weight: bold;">timecreated: </span> {{timecreated}}</small><br>
-                <small class="card-text"><span style="font-weight: bold;">timemodified: </span> {{timemodified}}</small><br>
-                <a href="{{url}}" >download report</a>
-                <div class="text-right">
-                    <a href="?action=edit&id={{ id }}" class="btn"><img src="assets/edit.png"></a>
-                    <a href="?action=delete&id={{ id }}" class="btn"><img src="assets/delete.png"></a>
+               <div class="max-auto card m-3">
+                <div class="card-header my-2"><strong>Title: </strong> {{ title }}</div>
+                <div class="card-body">
+                    <div class="card-text mb-2"><strong>Description: </strong> {{ description }}</div>
+                    <small>timecreated:  <span class="badge badge-secondary"> {{timecreated}}</span></small><br>
+                    <small>timemodified:  <span class="badge badge-secondary">{{timemodified}}</span></small><br>
+                    <div class="my-2"><a href="{{url}}">download report</a></div>
+                {{#comments}}
+                <div class="card my-2">
+                <div class="card-header"><strong>Supervisor's comment:</strong></div>
+                 <div class="card-text px-2">{{comment}} <span class="badge badge-secondary">{{timecreated}}</span></div>
+                </div>
+                {{/comments}}
+                </div>
+                <div class="card-footer text-center">
+                    <a href="?action=edit&id={{ id }}" class="btn mx-3"><img src="assets/edit.png"></a>
+                    <a href="?action=delete&id={{ id }}" class="btn mx-3"><img src="assets/delete.png"></a>
                 </div>
             </div>
-            {{#comments}}
-            <div>Supervisor's comment: {{comment}}</div>
-            {{/comments}}
-        </div>
         {{/reports}}
     </div>
 </div>
@@ -84,18 +87,29 @@ Example context (json):
 <div class="container">
     <h4 class="mt-5">Report details</h4>
     {{#report}}
-    <div class="card mb-5 w-50">
+    <div class="card mb-3 col-5">
+        <div class="card-header border-0"><strong>Title:</strong> {{ title }}</div>
         <div class="card-body">
-            <div class="card-title my-2"><span style="font-weight: bold;">Title:</span> {{ title }}</div>
-            <div class="card-text my-2">Description: {{ description }}</div>
-            <div class="card-text my-2">Student name: {{ studentname }}</div>
-            <small class="card-text my-2">Last modified: {{timemodified}}</small><br>
-            <a href="{{url}}">download report</a>
-            <div class="text-center my-2"> 
-                <a href="?action=approve&id={{ id }}" class="btn btn-outline-primary mx-3">Approve report</a>
-                <a href="?action=reject&id={{ id }}" class="btn btn-outline-danger mx-3">Reject report</a>
+            <div class="card-text my-2"><strong>Description</strong> {{ description }}</div>
+            <div class="card-text my-2"><strong>Student name:</strong>  {{ studentname }}</div>
+            <div><a href="{{url}}" class="my-3">Download proposal</a></div>
+            <small class="card-text my-2">Time created: <span class="badge badge-secondary">{{timecreated}}</span></small><br>
+            <small class="card-text my-2">Last modified:  <span class="badge badge-secondary">{{timemodified}}</span></small><br>
+            {{#comments}}
+            <div class="card mt-2">
+            <div class="card-header"><strong>Comments:</strong></div>
+            <div class="card-text px-2">* {{comment}} <span class="badge badge-secondary ms-3">{{timecreated}}</span>
+                <a href="?action=editcomment&id={{ id }}" class="btn mx-3"><img src="assets/edit.png"></a>
+                <a href="?action=deletecomment&id={{ id }}" class="btn mx-3"><img src="assets/delete.png"></a>
             </div>
+            </div>
+            {{/comments}}
         </div>
-        {{/report}}
+        <div class="card-footer text-center border-0">
+            <a href="?action=approve&id={{ id }}" class="btn btn-outline-primary mx-2">Approve</a>
+            <a href="?action=reject&id={{ id }}" class="btn btn-outline-danger mx-2">Reject</a>
+        </div>
+    </div>
+    {{/report}}
     </div>
     {{/viewreport}}

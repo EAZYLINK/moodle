@@ -90,9 +90,9 @@ function submit_project_report($data)
     global $DB;
     $table = 'esupervision_projectreports';
     $newReport = new stdClass();
-    $newReport->topic = $data->title;
+    $newReport->title = $data->title;
     $newReport->studentid = $data->studentid;
-    $newReport->supervisorid = 3;
+    $newReport->groupid = $data->groupid;
     $newReport->description = $data->description;
     $newReport->filename = $data->filename;
     $newReport->status = 'pending';
@@ -148,7 +148,7 @@ function update_report($data)
 {
     global $DB;
     $table = 'esupervision_projectreports';
-    $data->timemodified = time();
+    $data->timemodified = date('Y-m-d H:i:s');
     $update_reportid = $DB->update_record($table, $data);
     return $update_reportid;
 }
@@ -217,47 +217,49 @@ function reject_topic($id)
     return $update_topicid;
 }
 
-function submit_comment($data)
+function submit_feedbacks($data)
 {
     global $DB;
-    $table = 'esupervision_comments';
+    $table = 'esupervision_feedbacks';
     $data->timecreated = date('Y-m-d H:i:s');
     $data->timemodified = date('Y-m-d H:i:s');
     $newCommentId = $DB->insert_record($table, $data);
     return $newCommentId;
 }
 
-function get_comments_by_submissionid($id)
+function get_feedbacks_by_submissionid($id)
 {
     global $DB;
-    $table = 'esupervision_comments';
+    $table = 'esupervision_feedbacks';
     $sql = 'SELECT * FROM {' . $table . '} WHERE submissionid = ' . $id;
-    $comments = $DB->get_records_sql($sql, array($id));
-    return $comments;
+    $feedbacks = $DB->get_records_sql($sql, array($id));
+    return $feedbacks;
 }
 
-function get_comments_by_id($id)
+function get_feedbackss_by_id($id)
 {
     global $DB;
-    $table = 'esupervision_comments';
+    $table = 'esupervision_feedbacks';
     $sql = 'SELECT * FROM {' . $table . '} WHERE id= ' . $id;
     $comment = $DB->get_record_sql($sql, array($id));
     return $comment;
 }
 
-function update_comment($data)
+function update_feedbacks($data)
 {
     global $DB;
-    $table = 'esupervision_comments';
+    $table = 'esupervision_feedbacks';
     $updateid = $DB->update_record($table, $data);
     return $updateid;
 }
 
-function delete_comment($id)
+function delete_feedbacks($id, $type)
 {
     global $DB;
-    $table = 'esupervision_comments';
-    $delete_commentid = $DB->delete_records($table, array('id' => $id));
+    $table = 'esupervision_feedbacks';
+    $select = 'id = :id AND type = :type';
+    $params = array('id' => $id, 'type' => $type);
+    $delete_commentid = $DB->delete_records_select($table, $select, $params);
     return $delete_commentid;
 }
 
