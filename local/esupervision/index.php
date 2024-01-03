@@ -54,9 +54,14 @@ $grade->title = 'Grades';
 $grade->content = "view and manage grades";
 $grade->url = new moodle_url("/local/esupervision/grading.php");
 
+$chat = new stdClass();
+$chat->title = 'Chat forum';
+$chat->content = "view and manage forum chats";
+$chat->url = new moodle_url("/local/esupervision/forum.php");
+
 
 $name = $USER->firstname . " " . $USER->lastname;
-$pages = array($topic, $proposal, $report, $grade);
+$pages = array($topic, $proposal, $report, $grade, $chat);
 $data = array(
   "name" => $name,
   "pages" => array_values($pages)

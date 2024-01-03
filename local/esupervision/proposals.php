@@ -25,18 +25,16 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 require_login();
-global $USER;
 
 $context = context_system::instance();
-// Set up the page context and layout
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title('Project proposal');
 $PAGE->set_heading('Project proposal');
 $PAGE->set_url("/local/esupervision/proposals.php");
-
+$PAGE->navbar->add('Esupervision', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Project proposal', new moodle_url('/local/esupervision/proposals.php'));
 global $home_url, $download_url;
-navigation_node::override_active_url(new moodle_url('/local/esupervision/project/proposals.php'));
 $editoroptions = array(
 	'maxfiles' => 1,
 	'maxbytes' => 10485760,
@@ -55,9 +53,9 @@ $approveproposal = has_capability('local/esupervision:approveproposal', $context
 $action = optional_param('action', null, PARAM_TEXT);
 $id = optional_param('id', null, PARAM_INT);
 $fs = get_file_storage();
-$comments = array();
+$feedbacks = array();
 
-$proposal_form = new \local_esupervision\form\proposal_form();
+$proposal_form = new \local_esupervision\form\proposal_form(null, ['editoroptions' => $editoroptions]);
 $feedback_form = new \local_esupervision\form\feedback_form(null, ['feedbackoptions' => $editoroptions]);
 
 if (!$action) {
@@ -83,25 +81,16 @@ if ($allowpost) {
 			);
 		} else if ($proposal_form->get_data()) {
 			$data = $proposal_form->get_data();
+			$proposal = new stdClass();
+			$proposal = $data;
 			if (!$data->id) {
-				$filename = $proposal_form->get_new_filename('proposal_document');
-				$data->filename = $filename;
-				$data->groupid = $USER->idnumber;
-				$data->studentid = $USER->id;
-				$filepath = 'uploads/' . $filename;
-				$proposal_form->save_file('proposal_document', $filepath);
-				$submissionid = submit_proposal($data);
+				$proposal->groupid = $USER->idnumber;
+				$proposal->studentid = $USER->id;
+				['format' => $format, 'text' => $content] = $data->content;
+				$proposal->content = $content;
+				$proposal->format = $format;
+				$submissionid = submit_proposal($proposal);
 				if ($submissionid) {
-					$fileinfo = array(
-						'contextid' => $context->id,
-						'component' => 'local_esupervision',
-						'filearea' => 'proposals',
-						'itemid' => $submissionid,
-						'filepath' => '/',
-						'filename' => $filename,
-					);
-					$fs->create_file_from_pathname($fileinfo, $filepath);
-					unlink($filepath);
 					redirect(
 						$PAGE->url,
 						'proposal submitted successfully!',
@@ -112,28 +101,17 @@ if ($allowpost) {
 					redirect(
 						$PAGE->url,
 						'Error submitting proposal!',
+						null,
 						\core\output\notification::NOTIFY_ERROR
 					);
 				}
 			} else {
-				$filename = $proposal_form->get_new_filename('proposal_document');
-				$data->filename = $filename;
-				$data->studentid = $USER->id;
-				$filepath = 'uploads/' . $filename;
-				$fs->delete_area_files($context->id, 'local_esupervision', 'proposals', $data->id);
-				$proposal_form->save_file('proposal_document', $filepath);
-				$submissionid = update_proposal($data);
+				$proposal->studentid = $USER->id;
+				['format' => $format, 'text' => $content] = $data->content;
+				$proposal->content = $content;
+				$proposal->format = $format;
+				$submissionid = update_proposal($proposal);
 				if ($submissionid) {
-					$fileinfo = array(
-						'contextid' => $context->id,
-						'component' => 'local_esupervision',
-						'filearea' => 'proposals',
-						'itemid' => $data->id,
-						'filepath' => '/',
-						'filename' => $filename,
-					);
-					$fs->create_file_from_pathname($fileinfo, $filepath);
-					unlink($filepath);
 					redirect(
 						$PAGE->url,
 						'proposal updated successfully!',
@@ -143,6 +121,7 @@ if ($allowpost) {
 				} else {
 					redirect(
 						$PAGE->url,
+						null,
 						'Error updating proposal!',
 						\core\output\notification::NOTIFY_ERROR
 					);
@@ -152,21 +131,8 @@ if ($allowpost) {
 	} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && !$action) {
 		$proposals = get_proposal_by_studentid($USER->id);
 		foreach ($proposals as $proposal) {
-			$comments = get_comments_by_submissionid($proposal->id);
-			$file = $fs->get_file($context->id, 'local_esupervision', 'proposals', $proposal->id, '/', $proposal->filename);
-			if ($file) {
-				$download_url = moodle_url::make_pluginfile_url(
-					$file->get_contextid(),
-					$file->get_component(),
-					$file->get_filearea(),
-					$file->get_itemid(),
-					$file->get_filepath(),
-					$file->get_filename(),
-					true
-				);
-			}
-			$proposal->url = $download_url;
-			$proposal->comments = array_values($comments);
+			$feedbacks = get_feedbacks_by_submissionid($proposal->id);
+			$proposal->feedbacks = array_values($feedbacks);
 		}
 		$data = array(
 			'issupervisor' => false,
@@ -175,23 +141,13 @@ if ($allowpost) {
 		echo $OUTPUT->render_from_template('local_esupervision/proposals', $data);
 	} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && $action == 'edit' && $id) {
 		$proposal = get_proposal_by_proposalid($id);
-		$draftfileid = file_get_submitted_draft_itemid('proposal_document');
-		file_prepare_draft_area(
-			$draftfileid,
-			$context->id,
-			'local_esupervision',
-			'proposals',
-			$proposal->id,
-			array('subdirs' => true),
-			$proposal->filename
-		);
-		$proposal->proposal_document = $draftfileid;
 		$proposal_form->set_data($proposal);
+		$proposal_form->setEditorDefault($proposal->content, $proposal->format);
 		$proposal_form->add_action_buttons(true, 'Update proposal');
 		$proposal_form->display();
 	} else if ($action == 'delete' && $id) {
 		$fs->delete_area_files($context->id, 'local_esupervision', 'proposals', $id);
-		$commentid = delete_comment($id, 'proposal');
+		$commentid = delete_feedback($id, 'proposal');
 		$proposalid = delete_proposal($id);
 		if ($proposalid) {
 			redirect(
@@ -209,7 +165,6 @@ if ($allowpost) {
 	}
 }
 
-
 if ($allowview && $approveproposal) {
 	if ($feedback_form->is_cancelled()) {
 		redirect(
@@ -220,10 +175,17 @@ if ($allowview && $approveproposal) {
 		);
 	} else if ($feedback_form->get_data()) {
 		$data = $feedback_form->get_data();
+		$feedback = new stdClass();
 		if (!$data->id) {
-			$data->supervisorid = $USER->id;
+			$feedback->supervisorid = $USER->id;
+			$feedback->studentid = $USER->id;
+			$feedback->submissionid = $data->submissionid;
+			$feedback->type = 'proposal';
+			['format' => $format, 'text' => $content] = $data->content;
+			$feedback->feedback = $content;
+			$feedback->format = $format;
 			$data->type = 'proposal';
-			$feedbackid = submit_feeback($data);
+			$feedbackid = submit_feedback($feedback);
 			if ($feedbackid) {
 				redirect(
 					$PAGE->url,
@@ -279,23 +241,7 @@ if ($allowview && $approveproposal) {
 				$proposal->studentname = $student->firstname . ' ' . $student->lastname;
 			}
 			if ($proposal) {
-				$file = $fs->get_file($context->id, 'local_esupervision', 'proposals', $proposal->id, '/', $proposal->filename);
-				if ($file) {
-					$download_url = moodle_url::make_pluginfile_url(
-						$file->get_contextid(),
-						$file->get_component(),
-						$file->get_filearea(),
-						$file->get_itemid(),
-						$file->get_filepath(),
-						$file->get_filename(),
-						false
-					);
-					if ($download_url) {
-						$proposal->url = $download_url;
-					} else {
-						$proposal->url = null;
-					}
-				}
+				$proposal->feedbacks = array_values(get_feedbacks_by_submissionid($proposal->id));
 			}
 			$data = array(
 				'viewproposal' => true,
@@ -307,14 +253,10 @@ if ($allowview && $approveproposal) {
 			$feedback_form->add_action_buttons(true, 'Submit feedback');
 			$feedback_form->set_data($data);
 			$feedback_form->display();
-		} else if (!$action == 'editcomment' && $id) {
-			$comment = get_comments_by_id($id);
-			$data = new stdClass();
-			$data->id = $comment->id;
-			$data->submissionid = $comment->submissionid;
-			$data->feedback = $comment->feedback;
+		} else if ($action == 'editfeedback' && $id) {
+			$feedback = get_feedback_by_id($id);
 			$feedback_form->add_action_buttons(true, 'Update feedback');
-			$feedback_form->set_data($data);
+			$feedback_form->set_data($feedback);
 			$feedback_form->display();
 		} else if ($action == 'approve' && $id) {
 			$approve = approve_proposal($id);

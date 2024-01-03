@@ -30,15 +30,24 @@ class topic_form extends \moodleform
 {
     public function definition()
     {
+        $editoroptions = $this->_customdata['editoroptions'];
         $mform = $this->_form;
         $mform->addElement('text', 'topic', 'Project Topic:');
         $mform->setType('topic', PARAM_TEXT);
         $mform->addRule('topic', 'required', 'required', null, 'client');
-        $mform->addElement('textarea', 'description', 'Topic Descrption:');
-        $mform->setType('description', PARAM_TEXT);
+        $mform->addElement('editor', 'description', 'Topic Descrption:', $editoroptions);
+        $mform->setType('description', PARAM_RAW);
         $mform->addRule('description', 'required', 'required', null, 'client');
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+    }
+
+    public function setEditorDefaults($content, $format)
+    {
+        $this->_form->setDefault('description', [
+            'text' => $content,
+            'format' => $format
+        ]);
     }
     public function validation($data, $files)
     {

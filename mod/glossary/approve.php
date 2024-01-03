@@ -12,10 +12,10 @@ $hook = optional_param('hook', 'ALL', PARAM_CLEAN);
 $url = new moodle_url('/mod/glossary/approve.php', array('eid' => $eid, 'mode' => $mode, 'hook' => $hook, 'newstate' => $newstate));
 $PAGE->set_url($url);
 
-$entry = $DB->get_record('glossary_entries', array('id'=> $eid), '*', MUST_EXIST);
-$glossary = $DB->get_record('glossary', array('id'=> $entry->glossaryid), '*', MUST_EXIST);
+$entry = $DB->get_record('glossary_entries', array('id' => $eid), '*', MUST_EXIST);
+$glossary = $DB->get_record('glossary', array('id' => $entry->glossaryid), '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('glossary', $glossary->id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id'=> $cm->course), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 
@@ -24,8 +24,8 @@ require_capability('mod/glossary:approve', $context);
 
 if (($newstate != $entry->approved) && confirm_sesskey()) {
     $newentry = new stdClass();
-    $newentry->id           = $entry->id;
-    $newentry->approved     = $newstate;
+    $newentry->id = $entry->id;
+    $newentry->approved = $newstate;
     $newentry->timemodified = time(); // wee need this date here to speed up recent activity, TODO: use timestamp in approved field instead in 2.0
     $DB->update_record("glossary_entries", $newentry);
 

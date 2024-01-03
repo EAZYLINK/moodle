@@ -79,7 +79,7 @@ $PAGE->set_url('/course/edit.php', $pageparams);
 // Basic access control checks.
 if ($id) {
     // Editing course.
-    if ($id == SITEID){
+    if ($id == SITEID) {
         // Don't allow editing of  'site course' using this from.
         throw new \moodle_exception('cannoteditsiteform');
     }
@@ -89,7 +89,7 @@ if ($id) {
     require_login($course);
     $course = course_get_format($course)->get_course();
 
-    $category = $DB->get_record('course_categories', array('id'=>$course->category), '*', MUST_EXIST);
+    $category = $DB->get_record('course_categories', array('id' => $course->category), '*', MUST_EXIST);
     $coursecontext = context_course::instance($course->id);
     require_capability('moodle/course:update', $coursecontext);
 
@@ -97,7 +97,7 @@ if ($id) {
     // Creating new course in this category.
     $course = null;
     require_login();
-    $category = $DB->get_record('course_categories', array('id'=>$categoryid), '*', MUST_EXIST);
+    $category = $DB->get_record('course_categories', array('id' => $categoryid), '*', MUST_EXIST);
     $catcontext = context_coursecat::instance($category->id);
     require_capability('moodle/course:create', $catcontext);
     $PAGE->set_context($catcontext);
@@ -118,7 +118,7 @@ if (isset($catcontext)) {
 }
 
 // Prepare course and the editor.
-$editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES, 'maxbytes'=>$CFG->maxbytes, 'trusttext'=>false, 'noclean'=>true);
+$editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES, 'maxbytes' => $CFG->maxbytes, 'trusttext' => false, 'noclean' => true);
 $overviewfilesoptions = course_overviewfiles_options($course);
 if (!empty($course)) {
     // Add context for editor.
@@ -130,9 +130,9 @@ if (!empty($course)) {
     }
 
     // Inject current aliases.
-    $aliases = $DB->get_records('role_names', array('contextid'=>$coursecontext->id));
-    foreach($aliases as $alias) {
-        $course->{'role_'.$alias->roleid} = $alias->name;
+    $aliases = $DB->get_records('role_names', array('contextid' => $coursecontext->id));
+    foreach ($aliases as $alias) {
+        $course->{'role_' . $alias->roleid} = $alias->name;
     }
 
     // Populate course tags.

@@ -51,7 +51,7 @@ $editoroptions = array(
     'editor_width' => '100%'
 );
 
-$topicform = new \local_esupervision\form\topic_form();
+$topicform = new \local_esupervision\form\topic_form(null, ['editoroptions' => $editoroptions]);
 $feedback_form = new \local_esupervision\form\feedback_form(null, ['feedbackoptions' => $editoroptions]);
 
 echo $OUTPUT->header();
@@ -81,12 +81,16 @@ if ($allowpost) {
             );
 
         } elseif ($fromform = $topicform->get_data()) {
-            // Handle form successful operation, if any
             $data = $topicform->get_data();
             $data->studentid = $USER->id;
             $data->groupid = $USER->idnumber;
+            $topic = new stdClass();
+            $topic = $data;
             if (!$data->id) {
-                $topic_id = submit_topic($data);
+                ['text' => $content, 'format' => $format] = $data->description;
+                $topic->description = $content;
+                $topic->format = $format;
+                $topic_id = submit_topic($topic);
                 if ($topic_id) {
                     redirect(
                         $PAGE->url,
@@ -103,7 +107,10 @@ if ($allowpost) {
                     );
                 }
             } else {
-                $topic_id = update_topic($data);
+                ['text' => $content, 'format' => $format] = $data->description;
+                $topic->description = $content;
+                $topic->format = $format;
+                $topic_id = update_topic($topic);
                 if ($topic_id) {
                     redirect(
                         $PAGE->url,
@@ -137,11 +144,12 @@ if ($allowpost) {
     } elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && $action == 'edit' && $id) {
         $topic = get_topic_by_topicid($id);
         $toform = array(
-            'topic' => $topic[$id]->topic,
-            'description' => $topic[$id]->description,
-            'id' => $topic[$id]->id,
+            'topic' => $topic->topic,
+            'description' => $topic->description,
+            'id' => $topic->id,
         );
         $topicform->set_data($toform);
+        $topicform->setEditorDefaults($topic->description, $topic->format);
         $topicform->add_action_buttons(true, 'Update Topic');
         $topicform->display();
     } elseif ($action == 'delete' && $id) {
@@ -157,29 +165,30 @@ if ($allowpost) {
 }
 
 if ($allowview) {
-    if ($feedback_form->is_cancelled()) {
-        redirect($PAGE->url, 'form cancelled', \core\output\notification::NOTIFY_WARNING);
-    } elseif ($fromform = $feedback_form->get_data()) {
-        // Handle form successful operation, if any
-        $data = $feedback_form->get_data();
-        $data->type = 'topic';
-        if (!$data->id) {
-            $comment_id = submit_feedback($data);
-            if ($comment_id) {
-                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'feedback submitted successfully', \core\output\notification::NOTIFY_SUCCESS);
+    if (!$action) {
+        if ($feedback_form->is_cancelled()) {
+            redirect($PAGE->url, 'form cancelled', \core\output\notification::NOTIFY_WARNING);
+        } elseif ($fromform = $feedback_form->get_data()) {
+            // Handle form successful operation, if any
+            $data = $feedback_form->get_data();
+            $data->supervisorid = $USER->id;
+            $data->type = 'topic';
+            if (!$data->id) {
+                $feedbackid = submit_feedback($data);
+                if ($feedbackid) {
+                    redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'feedback submitted successfully', \core\output\notification::NOTIFY_SUCCESS);
+                } else {
+                    redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
+                }
             } else {
-                redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
-            }
-        } else {
-            $comment_id = update_feedback($data);
-            if ($comment_id) {
-                redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'feedback updated successfully', \core\output\notification::NOTIFY_SUCCESS);
-            } else {
-                redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
+                $feedbackid = update_feedback($data);
+                if ($feedbackid) {
+                    redirect($PAGE->url . '?action=view&id=' . $data->submissionid, 'feedback updated successfully', \core\output\notification::NOTIFY_SUCCESS);
+                } else {
+                    redirect($PAGE->url, 'an error occured', \core\output\ntification::NOTIFY_ERROR);
+                }
             }
         }
-    }
-    if (!$action) {
         $topics = get_topic_by_groupid($USER->idnumber);
         foreach ($topics as $key => $topic) {
             $user = get_user_by_id($topic->studentid);
@@ -197,10 +206,10 @@ if ($allowview) {
             $user = get_user_by_id($topic->studentid);
             $topic->studentname = $user->firstname . ' ' . $user->lastname;
             $feedbacks = get_feedbacks_by_submissionid($topic->id);
-            $topic->feedbacks = array_values($feedbacks);
             $data = array(
                 'viewtopic' => true,
                 'topic' => $topic,
+                'feedbacks' => array_values($feedbacks)
             );
             echo $OUTPUT->render_from_template('local_esupervision/topic', $data);
             $feedback = new stdClass();
@@ -226,17 +235,9 @@ if ($allowview) {
                 redirect($PAGE->url, 'an error occured');
 
             }
-        } elseif ($action == 'reject') {
-            $reject = reject_topic($id);
-            if ($reject) {
-                redirect($PAGE->url, 'topic rejected successfully');
-            } else {
-                redirect($PAGE->url, 'an error occured');
-
-            }
-        } elseif ($action == 'deletecomment' && $id) {
-            $feedback = get_feedbacks_by_id($id);
-            $deleteId = delete_feedback($id);
+        } elseif ($action == 'deletefeedback' && $id) {
+            $feedback = get_feedback_by_id($id);
+            $deleteId = delete_feedback($id, $feedback->type);
             if ($deleteId) {
                 redirect($PAGE->url . '?action=view&id=' . $feedback->submissionid, 'feedback deleted successfully');
 
@@ -244,8 +245,8 @@ if ($allowview) {
                 redirect($PAGE->url . '?action=view&id=' . $feedback->submissionid, 'an error occured');
 
             }
-        } elseif ($action == 'editcomment' && $id) {
-            $feedback = get_feedbacks_by_id($id);
+        } elseif ($action == 'editfeedback' && $id) {
+            $feedback = get_feedback_by_id($id);
             $feedback_form->add_action_buttons(true, 'Update feedback');
             $feedback_form->set_data($feedback);
             $feedback_form->display();

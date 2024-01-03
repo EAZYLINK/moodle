@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 
 
 require_once("$CFG->libdir/formslib.php");
-$users = get_user_by_groupid($groupid, $userid);
 
 class grading_form extends \moodleform
 {

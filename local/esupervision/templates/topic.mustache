@@ -41,7 +41,7 @@
       <td>{{ id }}</td>
       <td>{{ studentname }}</td>
       <td>{{ topic }}</td>
-      <td>{{ description }}</td>
+      <td>{{{ description }}}</td>
       <td>{{ status }}</td>
       <td>
         <button class="btn"><a href="?action=view&id={{ id }}">view</a></button>
@@ -60,16 +60,16 @@
     <div class="max-auto card m-3">
         <div class="card-header mb-2"><strong>Topic:   </strong>{{ topic }}</div>
         <div class="card-body">
-                <div class="card-text"><strong>Description:   </strong>   {{ description }}</div>
+                <div class="card-text"><strong>Description:   </strong>   {{{ description }}}</div>
                 <div class="card-text"><strong>Status:   </strong>  {{ status }}</div>
                 <small class="card-text">submitted date:  <span class="badge badge-secondary">{{timecreated}}</span></small><br>
                 <small class="card-text">Last modified:   <span class="badge badge-secondary">{{timemodified}}</span></small><br>
-                {{#comments}}
+                {{#feedbacks}}
                 <div class="card mt-2">
                 <div class="card-header"><strong>Supervisor's comment:</strong></div>
-                 <div class="card-text px-2">*  {{comment}} <span class="badge badge-secondary">{{timecreated}}</span></div>
+                 <div class="card-text px-2">*  {{{feedback}}} <span class="badge badge-secondary">{{timecreated}}</span></div>
                 </div>
-                {{/comments}}
+                {{/feedbacks}}
         </div>
         <div class="card-footer text-center mt-3">
             <a href="?action=edit&id={{ id }}" class="btn btn-outline-primary mx-3"><img src="assets/edit.png"></a>
@@ -84,29 +84,31 @@
 {{#viewtopic}}
 <div class="container">
   <h4 class="mt-5">Topic details</h4>
-  {{#topic}}
-  <div class="card mb-5 max-4">
-      <div class="card-header">Topic: {{ topic }}</div>
-    <div class="card-body">
-		<div class="card-text"><strong>Description: </strong>{{ description }}</div>
-		<div class="card-text"><strong>Student name: </strong>{{ studentname }}</div>
-		<div class="card-text"><strong>Status:  </strong> {{ status }}</div>
-		<small class="card-text">Last modified: <span class="badge badge-secondary">{{timemodified}}</span></small><br>
-		{{#comments}}
-		<div class="card mt-2">
-		<div class="card-header"><strong>Comments:</strong></div>
-		<div class="card-text px-2">* {{comment}} <span class="badge badge-secondary ms-3">{{timecreated}}</span>
-			<a href="?action=editcomment&id={{ id }}" class="btn mx-3"><img src="assets/edit.png"></a>
-            <a href="?action=deletecomment&id={{ id }}" class="btn mx-3"><img src="assets/delete.png"></a>
-		</div>
-		</div>
-		{{/comments}}
-    </div>
-      <div class="card-footer text-center mt-3">
-          <a href="?action=approve&id={{ id }}" class="btn btn-primary mx-2">Approve</a>
-          <a href="?action=reject&id={{ id }}" class="btn btn-primary mx-2">Reject</a>
-      </div>
-    {{/topic}}
+        {{#topic}}
+        <div class="card mb-5 max-auto">
+        <div class="card-header">Topic: {{ topic }}</div>
+        <div class="card-body">
+            <div class="card-text"><strong>Description: </strong>{{{ description }}}</div>
+            <div class="card-text"><strong>Student name: </strong>{{ studentname }}</div>
+            <div class="card-text"><strong>Status:  </strong> {{ status }}</div>
+            <small class="card-text">Last modified: <span class="badge badge-secondary">{{timemodified}}</span></small><br>
+        {{/topic}}
+            <div class="card mt-2">
+                <div class="card-header"><strong>Comments:</strong></div>
+                        {{#feedbacks}}
+                        <div class="card-body" style="display: flex; justify-content: space-between; align-items: center;">
+                            <p class="card-text">{{{feedback}}} </p>
+                            <small class="badge badge-secondary mx-2">{{timecreated}}</small>
+                            <a href="?action=editfeedback&id={{ id }}" class="btn mx-3"><img src="assets/edit.png"></a>
+                            <a href="?action=deletefeedback&id={{ id }}" class="btn mx-3"><img src="assets/delete.png"></a>
+                        </div>
+                        {{/feedbacks}}
+                </div>
+            </div>
+        <div class="card-footer text-center mt-3">
+            <a href="?action=approve&id={{ id }}" class="btn btn-primary mx-2">Approve</a>
+            <a href="?action=reject&id={{ id }}" class="btn btn-primary mx-2">Reject</a>
+        </div>
   </div>
 {{/viewtopic}}
 

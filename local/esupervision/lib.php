@@ -37,7 +37,8 @@ function submit_topic($data)
     $newTopic->topic = $data->topic;
     $newTopic->studentid = $data->studentid;
     $newTopic->groupid = $data->groupid;
-    $newTopic->description = $data->description;
+    $newTopic->description = clean_text($data->description['text'], $data->description['format']);
+    $newTopic->format = $data->description['format'];
     $newTopic->status = 'pending';
     $newTopic->timecreated = date('Y-m-d H:i:s');
     $newTopic->timemodified = date('Y-m-d H:i:s');
@@ -85,7 +86,7 @@ function delete_topic($id)
 
 
 
-function submit_project_report($data)
+function submit_report($data)
 {
     global $DB;
     $table = 'esupervision_projectreports';
@@ -93,19 +94,19 @@ function submit_project_report($data)
     $newReport->title = $data->title;
     $newReport->studentid = $data->studentid;
     $newReport->groupid = $data->groupid;
-    $newReport->description = $data->description;
-    $newReport->filename = $data->filename;
+    $newReport->content = $data->content;
+    $newReport->format = $data->format;
     $newReport->status = 'pending';
     $newReport->timecreated = date('Y-m-d H:i:s');
     $newReport->timemodified = date('Y-m-d H:i:s');
     $newReportId = $DB->insert_record($table, $newReport);
     return $newReportId;
 }
-function get_report_by_supervisorid($id)
+function get_all_reports_by_groupid($groupid)
 {
     global $DB;
-    $sql = 'SELECT * FROM {esupervision_projectreports} WHERE supervisorid = ' . $id;
-    $param = array($id);
+    $sql = 'SELECT * FROM {esupervision_projectreports} WHERE groupid = :groupid';
+    $param = array('groupid' => $groupid);
     $report = $DB->get_records_sql($sql, $param);
     return $report;
 }
@@ -217,7 +218,7 @@ function reject_topic($id)
     return $update_topicid;
 }
 
-function submit_feedbacks($data)
+function submit_feedback($data)
 {
     global $DB;
     $table = 'esupervision_feedbacks';
@@ -236,7 +237,7 @@ function get_feedbacks_by_submissionid($id)
     return $feedbacks;
 }
 
-function get_feedbackss_by_id($id)
+function get_feedback_by_id($id)
 {
     global $DB;
     $table = 'esupervision_feedbacks';
@@ -245,7 +246,7 @@ function get_feedbackss_by_id($id)
     return $comment;
 }
 
-function update_feedbacks($data)
+function update_feedback($data)
 {
     global $DB;
     $table = 'esupervision_feedbacks';
@@ -253,7 +254,7 @@ function update_feedbacks($data)
     return $updateid;
 }
 
-function delete_feedbacks($id, $type)
+function delete_feedback($id, $type)
 {
     global $DB;
     $table = 'esupervision_feedbacks';
@@ -279,8 +280,8 @@ function submit_proposal($data)
     $newProposal->title = $data->title;
     $newProposal->studentid = $data->studentid;
     $newProposal->groupid = $data->groupid;
-    $newProposal->description = $data->description;
-    $newProposal->filename = $data->filename;
+    $newProposal->content = $data->content;
+    $newProposal->format = $data->format;
     $newProposal->status = 'pending';
     $newProposal->timecreated = date('Y-m-d H:i:s');
     $newProposal->timemodified = date('Y-m-d H:i:s');
@@ -376,6 +377,15 @@ function local_esupervision_extend_navigation(global_navigation $root)
         new pix_icon('t/info', '')
     );
     $root->add_node($node);
+}
+
+function submit_forumpost($data)
+{
+    global $DB;
+    $table = 'esupervision_forumposts';
+    $data->createdat = date('Y-m-d H:m:s');
+    return $DB->insert_record($table, $data);
+
 }
 
 function local_esupervision_pluginfile(

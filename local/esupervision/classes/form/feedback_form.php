@@ -35,21 +35,29 @@ class feedback_form extends \moodleform
     {
         $feedbackoptions = $this->_customdata['feedbackoptions'];
         $mform = $this->_form;
-        $mform->addElement('header', 'header', 'Comment', null, false);
-        $mform->addElement('editor', 'content', 'Feedback:', null, $feedbackoptions);
-        $mform->addRule('content', null, 'required', null, 'client');
-        $mform->setType('content', PARAM_RAW);
+        $mform->addElement('header', 'header', 'Feedback', null, false);
+        $mform->addElement('editor', 'feedback', 'Feedback:', null, $feedbackoptions);
+        $mform->addRule('feedback', 'feedback is required', 'required', null, 'client');
+        $mform->setType('feedback', PARAM_RAW);
         $mform->addElement('hidden', 'submissionid');
         $mform->setType('submissionid', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
     }
 
+    public function setEditorDefault($content, $format)
+    {
+        $this->_form->setDefault('content', [
+            'text' => $content,
+            'format' => $format
+        ]);
+    }
+
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty($data['comment'])) {
-            $errors['comment'] = get_string('error_required', 'local_esupervision');
+        if (empty($data['content'])) {
+            $errors['content'] = get_string('error_required', 'local_esupervision');
         }
         return $errors;
     }

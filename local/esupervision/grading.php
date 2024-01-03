@@ -22,18 +22,25 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 require_login();
 
+$context = context_system::instance();
 $PAGE->set_url('/local/esupervision/project/grading.php');
-$PAGE->set_context(context_system::instance());
+$PAGE->set_context($context);
 $PAGE->set_title('Project Scores');
 $PAGE->set_pagelayout('standard');
+
+$allowgrading = has_capability('local/esupervision:gradeproject', $context, $user = null, $doanything = true);
 
 $grade_form = new \local_esupervision\form\grading_form();
 
 echo $OUTPUT->header();
+
+if ($allowgrading) {
+    $grade_form->display();
+}
 
 
 echo $OUTPUT->footer();

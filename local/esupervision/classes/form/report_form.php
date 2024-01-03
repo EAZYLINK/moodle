@@ -27,45 +27,34 @@ defined('MOODLE_INTERNAL') || die();
  */
 
 require_once("$CFG->libdir/formslib.php");
-class project_report extends \moodleform
+class report_form extends \moodleform
 {
     public function definition()
     {
+        $editoroptions = $this->_customdata['editoroptions'];
         $mform = $this->_form;
         $mform->addElement("header", "header", "Project Report", null, false);
         $mform->addElement('text', 'title', 'Project Title:');
         $mform->setType('title', PARAM_TEXT);
         $mform->addRule('title', 'required', 'required', null, 'client');
-        $mform->addElement('textarea', 'description', 'Project Description:', ['rows' => '5', 'cols' => '50']);
-        $mform->setType('description', PARAM_TEXT);
-        $mform->addElement(
-            'filepicker',
-            'project_document',
-            'Project Document:',
-            [
-                'subdirs' => 0,
-                'areamaxbytes' => 10485760,
-                'maxfiles' => 1,
-                'accepted_types' => 'document',
-            ]
-        );
-        $mform->setType('project_document', PARAM_FILE);
-        $mform->addRule('project_document', 'required', 'required', null, 'client');
+        $mform->addElement('editor', 'content', 'Report details', $editoroptions);
+        $mform->setType('content', PARAM_RAW);
+        $mform->addRule('content', 'Proposal content cannot be empty', 'required', null, 'client');
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+    }
+
+    public function setEditorDefault($content, $format)
+    {
+        $this->_form->setDefault('content', [
+            'text' => $content,
+            'format' => $format
+        ]);
     }
 
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty($data['description'])) {
-            $errors['description'] = get_string('error_required', 'local_esupervision');
-        } elseif (!empty($files['project_document']['name'])) {
-            $fileinfo = $files['project_document'];
-            if ($fileinfo['error'] != UPLOAD_ERR_OK) {
-                $errors['project_document'] = "failed to upload document";
-            }
-        }
         return $errors;
     }
 }

@@ -14,40 +14,44 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 namespace local_esupervision\form;
 
-// defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Feedback form for project supervision
+ * Feedback form for proposal supervision
  *
  * @copyright 1999 Martin Dougiamas  http://dougiamas.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package local_esupervision_v1
+ * @package local_esupervision
  */
 
-
 require_once("$CFG->libdir/formslib.php");
-
-class editor_form extends \moodleform
+class forum_form extends \moodleform
 {
     public function definition()
     {
         $editoroptions = $this->_customdata['editoroptions'];
         $mform = $this->_form;
-        $mform->addElement(
-            'editor',
-            'editor',
-            'Description',
-            null,
-            $editoroptions
-        );
-        $mform->setType('editor', PARAM_RAW);
-        $mform->addRule('editor', 'required', 'required', null, 'client');
+        $mform->addElement('editor', 'message', 'Message', $editoroptions);
+        $mform->setType('message', PARAM_RAW);
+        $mform->addRule('message', 'message ', 'required', null, 'client');
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
+        $mform->addElement('submit', 'intro', 'Post');
+    }
+
+    public function setEditorDefault($message, $format)
+    {
+        $this->_form->setDefault('message', [
+            'text' => $message,
+            'format' => $format
+        ]);
     }
 
     public function validation($data, $files)
     {
-
+        $errors = parent::validation($data, $files);
+        return $errors;
     }
 }

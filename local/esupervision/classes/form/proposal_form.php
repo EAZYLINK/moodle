@@ -29,41 +29,30 @@ class proposal_form extends \moodleform
 {
     public function definition()
     {
+        $editoroptions = $this->_customdata['editoroptions'];
         $mform = $this->_form;
         $mform->addElement("header", "header", "Project Proposal", null, false);
         $mform->addElement('text', 'title', 'Proposal Title:');
         $mform->setType('title', PARAM_TEXT);
         $mform->addRule('title', 'required', 'required', null, 'client');
-        $mform->addElement('textarea', 'description', 'proposal Description:', ['rows' => '5', 'cols' => '50']);
-        $mform->setType('description', PARAM_TEXT);
-        $mform->addElement(
-            'filepicker',
-            'proposal_document',
-            'proposal Document:',
-            [
-                'subdirs' => 0,
-                'areamaxbytes' => 10485760,
-                'maxfiles' => 1,
-                'accepted_types' => 'document',
-            ]
-        );
-        $mform->setType('proposal_document', PARAM_FILE);
-        $mform->addRule('proposal_document', 'required', 'required', null, 'client');
+        $mform->addElement('editor', 'content', 'Proposal details', $editoroptions);
+        $mform->setType('content', PARAM_RAW);
+        $mform->addRule('content', 'Proposal content cannot be empty', 'required', null, 'client');
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+    }
+
+    public function setEditorDefault($content, $format)
+    {
+        $this->_form->setDefault('content', [
+            'text' => $content,
+            'format' => $format
+        ]);
     }
 
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty($data['description'])) {
-            $errors['description'] = get_string('error_required', 'local_esupervision');
-        } elseif (!empty($files['proposal_document']['name'])) {
-            $fileinfo = $files['proposal_document'];
-            if ($fileinfo['error'] != UPLOAD_ERR_OK) {
-                $errors['proposal_document'] = "failed to upload document";
-            }
-        }
         return $errors;
     }
 }
