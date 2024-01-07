@@ -31,7 +31,7 @@ require_once($CFG->dirroot . '/mod/chat/lib.php');
 function submit_topic($data)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
+    $table = 'esupervision_topics';
     // Create a new project record
     $newTopic = new stdClass();
     $newTopic->topic = $data->topic;
@@ -49,8 +49,8 @@ function submit_topic($data)
 function get_topic_by_studentid($id)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
-    $sql = 'SELECT * FROM {esupervision_projecttopics} WHERE studentid = ' . $id;
+    $table = 'esupervision_topics';
+    $sql = 'SELECT * FROM {esupervision_topics} WHERE studentid = ' . $id;
     $params = array($id);
     $topic = $DB->get_records_sql($sql, $params);
     // $topic = $DB->get_record($table, array('studentid' => $id));
@@ -60,7 +60,7 @@ function get_topic_by_studentid($id)
 function get_topic_by_topicid($id)
 {
     global $DB;
-    $sql = 'SELECT * FROM {esupervision_projecttopics} WHERE id = ' . $id;
+    $sql = 'SELECT * FROM {esupervision_topics} WHERE id = ' . $id;
     $params = array($id);
     $topic = $DB->get_record_sql($sql, $params);
     return $topic;
@@ -69,7 +69,7 @@ function get_topic_by_topicid($id)
 function update_topic($topic)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
+    $table = 'esupervision_topics';
     $topic->status = 'pending';
     $topic->timemodified = date('Y-m-d H:i:s');
     $update_topicid = $DB->update_record($table, $topic);
@@ -79,7 +79,7 @@ function update_topic($topic)
 function delete_topic($id)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
+    $table = 'esupervision_topics';
     $delete_topicid = $DB->delete_records($table, array('id' => $id));
     return $delete_topicid;
 }
@@ -89,7 +89,7 @@ function delete_topic($id)
 function submit_report($data)
 {
     global $DB;
-    $table = 'esupervision_projectreports';
+    $table = 'esupervision_reports';
     $newReport = new stdClass();
     $newReport->title = $data->title;
     $newReport->studentid = $data->studentid;
@@ -105,7 +105,7 @@ function submit_report($data)
 function get_all_reports_by_groupid($groupid)
 {
     global $DB;
-    $sql = 'SELECT * FROM {esupervision_projectreports} WHERE groupid = :groupid';
+    $sql = 'SELECT * FROM {esupervision_reports} WHERE groupid = :groupid';
     $param = array('groupid' => $groupid);
     $report = $DB->get_records_sql($sql, $param);
     return $report;
@@ -114,7 +114,7 @@ function get_all_reports_by_groupid($groupid)
 function get_report_by_projectid($id)
 {
     global $DB;
-    $sql = 'SELECT * FROM {esupervision_projectreports} WHERE supervisorid = ' . $id;
+    $sql = 'SELECT * FROM {esupervision_reports} WHERE supervisorid = ' . $id;
     $param = array($id);
     $report = $DB->get_records_sql($sql, $param);
     return $report;
@@ -123,7 +123,7 @@ function get_report_by_projectid($id)
 function get_report_by_studentid($id)
 {
     global $DB;
-    $sql = 'SELECT * FROM {esupervision_projectreports} WHERE studentid = ' . $id;
+    $sql = 'SELECT * FROM {esupervision_reports} WHERE studentid = ' . $id;
     $param = array($id);
     $report = $DB->get_records_sql($sql, $param);
     return $report;
@@ -131,7 +131,7 @@ function get_report_by_studentid($id)
 function get_report_by_reportid($id)
 {
     global $DB;
-    $sql = 'SELECT * FROM {esupervision_projectreports} WHERE id = ' . $id;
+    $sql = 'SELECT * FROM {esupervision_reports} WHERE id = ' . $id;
     $param = array($id);
     $report = $DB->get_record_sql($sql, $param);
     return $report;
@@ -140,7 +140,7 @@ function get_report_by_reportid($id)
 function get_all_reports()
 {
     global $DB;
-    $table = 'esupervision_projectreports';
+    $table = 'esupervision_reports';
     $report = $DB->get_records($table);
     return $report;
 }
@@ -148,7 +148,7 @@ function get_all_reports()
 function update_report($data)
 {
     global $DB;
-    $table = 'esupervision_projectreports';
+    $table = 'esupervision_reports';
     $data->timemodified = date('Y-m-d H:i:s');
     $update_reportid = $DB->update_record($table, $data);
     return $update_reportid;
@@ -157,7 +157,7 @@ function update_report($data)
 function delete_report($id)
 {
     global $DB;
-    $table = 'esupervision_projectreports';
+    $table = 'esupervision_reports';
     $delete_reportid = $DB->delete_records($table, array('id' => $id));
     return $delete_reportid;
 }
@@ -165,7 +165,7 @@ function delete_report($id)
 function reject_report($id)
 {
     global $DB;
-    $table = 'esupervision_projectreports';
+    $table = 'esupervision_reports';
     $report = $DB->get_record($table, array('id' => $id));
     $report->status = 'rejected';
     $report->timemodified = date('Y-m-d H:i:s');
@@ -176,7 +176,7 @@ function reject_report($id)
 function approve_report($id)
 {
     global $DB;
-    $table = 'esupervision_projectreports';
+    $table = 'esupervision_reports';
     $report = $DB->get_record($table, array('id' => $id));
     $report->status = 'approved';
     $report->timemodified = date('Y-m-d H:i:s');
@@ -189,7 +189,7 @@ function approve_report($id)
 function get_topic_by_groupid($groupid)
 {
     global $DB;
-    $topictable = 'esupervision_projecttopics';
+    $topictable = 'esupervision_topics';
     $sql = 'SELECT * FROM {' . $topictable . '} WHERE groupid = :groupid';
     $params = array('groupid' => $groupid);
     $topic = $DB->get_records_sql($sql, $params);
@@ -199,7 +199,7 @@ function get_topic_by_groupid($groupid)
 function approve_topic($id)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
+    $table = 'esupervision_topics';
     $topic = $DB->get_record($table, array('id' => $id));
     $topic->status = 'approved';
     $topic->timemodified = date('Y-m-d H:i:s');
@@ -210,7 +210,7 @@ function approve_topic($id)
 function reject_topic($id)
 {
     global $DB;
-    $table = 'esupervision_projecttopics';
+    $table = 'esupervision_topics';
     $topic = $DB->get_record($table, array('id' => $id));
     $topic->status = 'rejected';
     $topic->timemodified = date('Y-m-d H:i:s');
@@ -275,7 +275,7 @@ function get_user_by_id($id)
 function submit_proposal($data)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $newProposal = new stdClass();
     $newProposal->title = $data->title;
     $newProposal->studentid = $data->studentid;
@@ -292,7 +292,7 @@ function submit_proposal($data)
 function get_all_proposals_by_groupid($groupid)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $sql = 'SELECT * FROM {' . $table . '} WHERE groupid = :groupid';
     $proposals = $DB->get_records_sql($sql, array('groupid' => $groupid));
     return $proposals;
@@ -300,7 +300,7 @@ function get_all_proposals_by_groupid($groupid)
 function get_proposal_by_studentid($id)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $sql = 'SELECT * FROM {' . $table . '} WHERE studentid = :id';
     $param = array('id' => $id);
     $proposal = $DB->get_records_sql($sql, $param);
@@ -310,7 +310,7 @@ function get_proposal_by_studentid($id)
 function get_proposal_by_proposalid($id)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $sql = 'SELECT * FROM {' . $table . '} WHERE id = ' . $id;
     $param = array($id);
     $proposal = $DB->get_record_sql($sql, $param);
@@ -320,7 +320,7 @@ function get_proposal_by_proposalid($id)
 function approve_proposal($id)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $proposal = $DB->get_record($table, array('id' => $id));
     $proposal->status = 'approved';
     $proposal->timemodified = date('Y-m-d H:i:s');
@@ -341,7 +341,7 @@ function get_user_by_groupid($groupid, $userid)
 function reject_proposal($id)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $proposal = $DB->get_record($table, array('id' => $id));
     $proposal->status = 'rejected';
     $proposal->timemodified = date('Y-m-d H:i:s');
@@ -352,7 +352,7 @@ function reject_proposal($id)
 function update_proposal($data)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $data->timemodified = date('Y-m-d H:i:s');
     $update_proposalid = $DB->update_record($table, $data);
     return $update_proposalid;
@@ -361,7 +361,7 @@ function update_proposal($data)
 function delete_proposal($id)
 {
     global $DB;
-    $table = 'esupervision_projectproposals';
+    $table = 'esupervision_proposals';
     $proposalid = $DB->delete_records($table, array('id' => $id));
     return $proposalid;
 }
