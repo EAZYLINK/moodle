@@ -31,7 +31,7 @@ $PAGE->set_url('/local/esupervision/grading.php');
 $PAGE->set_context($context);
 $PAGE->set_title('Project Scores System');
 $PAGE->set_pagelayout('standard');
-$PAGE->navbar->add('Esupervision', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Dashboard', new moodle_url('/local/esupervision/index.php'));
 $PAGE->navbar->add('Project Score', new moodle_url('/local/esupervision/grading.php'));
 
 $allowgrading = has_capability('local/esupervision:gradeproject', $context, $user = null, $doanything = true);

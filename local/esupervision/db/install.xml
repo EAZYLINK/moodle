@@ -69,6 +69,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="studentid" TYPE="unique" FIELDS="studentid"/>
+        <KEY NAME="id" TYPE="primary" FIELDS="id" COMMENT="primary key"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="supervisorid" UNIQUE="false" FIELDS="supervisorid"/>
