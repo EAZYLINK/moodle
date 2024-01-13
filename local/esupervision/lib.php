@@ -37,8 +37,9 @@ function submit_topic($data)
     $newTopic->topic = $data->topic;
     $newTopic->studentid = $data->studentid;
     $newTopic->groupid = $data->groupid;
-    $newTopic->description = clean_text($data->description['text'], $data->description['format']);
-    $newTopic->format = $data->description['format'];
+    $newTopic->topic = $data->topic;
+    $newTopic->description = $data->description;
+    $newTopic->format = $data->format;
     $newTopic->status = 'pending';
     $newTopic->timecreated = date('Y-m-d H:i:s');
     $newTopic->timemodified = date('Y-m-d H:i:s');
@@ -338,6 +339,13 @@ function get_user_by_groupid($groupid, $userid)
     return $user;
 }
 
+function get_all_users() {
+    global $DB;
+    $table = 'user';
+    $users = $DB->get_records($table);
+    return $users;
+}
+
 function reject_proposal($id)
 {
     global $DB;
@@ -366,6 +374,128 @@ function delete_proposal($id)
     return $proposalid;
 }
 
+
+function submit_forumpost($data)
+{
+    global $DB;
+    $table = 'esupervision_forumposts';
+    $data->createdat = date('Y-m-d H:m:s');
+    return $DB->insert_record($table, $data);
+
+}
+
+function submit_grade($grade) {
+    global $DB;
+    $table = 'esupervision_grades';
+    $grade->timecreated = date('Y-m-d H:m:s');
+    $gradeid = $DB->insert_record($table, $grade);
+    return $gradeid;
+}
+
+function get_students_grade($supervisorid) {
+    global $DB;
+    $table = 'esupervision_grades';
+    $grades = $DB->get_records($table, ['supervisorid' => $supervisorid]);
+    return $grades;
+}
+
+function get_grade_by_studentid($studentid) {
+    global $DB;
+    $table = 'esupervision_grades';
+    $grades = $DB->get_records($table, ['studentid' => $studentid]);
+    return $grades;
+}
+
+function delete_grade($id) {
+    global $DB;
+    $table = 'esupervision_grades';
+    $deleteid = $DB->delete_records($table, ['id' => $id]);
+    return $deleteid;
+}
+
+function submit_group($group) {
+    global $DB;
+    $table = 'esupervision_groups';
+    $group->timecreated = date('Y-m-d H:m:s');
+    $groupid = $DB->insert_record($table, $group);
+    return $groupid;
+}
+
+function get_groups() {
+    global $DB;
+    $table = 'esupervision_groups';
+    $groups = $DB->get_records($table);
+    return $groups;
+}
+
+function get_group_by_id($id) {
+    global $DB;
+    $table = 'esupervision_groups';
+    $group = $DB->get_record($table, ['id' => $id]);
+    return $group;
+}
+
+function get_group_by_name($name) {
+    global $DB;
+    $table = 'esupervision_groups';
+    $sql = 'SELECT * FROM {'.$table.'} WHERE TRIM(name) = :name';
+    $group = $DB->get_record_sql($sql, ['name' => $name]);
+    return $group;
+}
+
+function delete_group($id) {
+    global $DB;
+    $table = 'esupervision_groups';
+    $deleteid = $DB->delete_records($table, ['id' => $id]);
+    return $deleteid;
+}
+
+function assign_group($data) {
+    global $DB;
+    $table = 'esupervision_students';
+    $data->timecreated = date('Y-m-d H:m:s');
+    $data->timemodified = date('Y-m-d H:m:s');
+    $assignid = $DB->insert_record($table, $data);
+    return $assignid;
+}
+
+function get_group_students() {
+    global $DB;
+    $table = 'esupervision_students';
+    $students = $DB->get_records($table);
+    return $students;
+}
+
+function get_group_student_by_studentid($studentid) {
+    global $DB;
+    $table = 'esupervision_students';
+    $student = $DB->get_record($table, ['studentid' => $studentid]);
+    return $student;
+}
+
+function unassign_student($id) {
+    global $DB;
+    $table = 'esupervision_students';
+    $deleteid = $DB->delete_records($table, ['id' => $id]);
+    return $deleteid;
+}
+
+function get_user_by_name($fullname) {
+    global $DB;
+    $sql = "SELECT id from {user} WHERE CONCAT(firstname, ' ', lastname) = ?";
+    $userid = $DB->get_record_sql($sql, array($fullname));
+    return $userid;
+}
+
+function record_exists($table, $field, $value) {
+    global $DB;
+    if ($DB->record_exists($table, [$field => $value])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function local_esupervision_extend_navigation(global_navigation $root)
 {
     $node = navigation_node::create(
@@ -378,16 +508,6 @@ function local_esupervision_extend_navigation(global_navigation $root)
     );
     $root->add_node($node);
 }
-
-function submit_forumpost($data)
-{
-    global $DB;
-    $table = 'esupervision_forumposts';
-    $data->createdat = date('Y-m-d H:m:s');
-    return $DB->insert_record($table, $data);
-
-}
-
 function local_esupervision_pluginfile(
     $course,
     $cm,

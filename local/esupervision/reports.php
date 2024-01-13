@@ -33,6 +33,8 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_title('Project Report');
 $PAGE->set_heading('Project Report');
 $PAGE->set_url("/local/esupervision/reports.php");
+$PAGE->navbar->add('Dashboard', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Project Report', new moodle_url('/local/esupervision/reports.php'));
 
 $editoroptions = array(
     'maxfiles' => 1,
@@ -56,15 +58,7 @@ $action = optional_param('action', null, PARAM_TEXT);
 $id = optional_param('id', null, PARAM_INT);
 $fs = get_file_storage();
 
-if (!$action) {
-    $home_url = new moodle_url('/local/esupervision/index.php');
-} elseif ($action) {
-    $home_url = new moodle_url('/local/esupervision/reports.php');
-}
-$htmlstring = '<a href="' . $home_url . '" class="btn btn-primary mb-4">Back</a>';
-
 echo $OUTPUT->header();
-echo $htmlstring;
 if ($allowpost) {
     if (!$action) {
         $report_form->add_action_buttons(true, 'Submit Report');

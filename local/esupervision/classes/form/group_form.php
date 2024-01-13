@@ -14,41 +14,45 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 namespace local_esupervision\form;
 
 defined('MOODLE_INTERNAL') || die();
+
 /**
- * Feedback form for project supervision
+ * Feedback form for proposal supervision
  *
  * @copyright 1999 Martin Dougiamas  http://dougiamas.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package local_esupervision_v1
+ * @package local_esupervision
  */
 
-
 require_once("$CFG->libdir/formslib.php");
-
-class feedback_form extends \moodleform
+class group_form extends \moodleform
 {
     public function definition()
     {
-        $feedbackoptions = $this->_customdata['feedbackoptions'];
+        $editoroptions = $this->_customdata['editoroptions'];
+        $userlist = $this->_customdata['userlist'];
         $mform = $this->_form;
-        $mform->addElement('header', 'header', 'Feedback', null, false);
-        $mform->addElement('editor', 'feedback', 'Feedback:', null, $feedbackoptions);
-        $mform->addRule('feedback', 'feedback is required', 'required', null, 'client');
-        $mform->setType('feedback', PARAM_RAW);
-        $mform->addElement('hidden', 'submissionid');
-        $mform->setType('submissionid', PARAM_INT);
+        $mform->addElement('text', 'name', 'Group name');
+        $mform->setType('name', PARAM_TEXT);
+        $mform->addRule('name', 'group name is required', 'required', null, 'client');
+        $mform->addElement('select', 'supervisor', 'Supervisor', $userlist);
+        $mform->addRule('supervisor', null, 'required', null, 'client');
+        $mform->setType('supervisor', PARAM_NOTAGS);
+        $mform->addElement('editor', 'description', 'description', $editoroptions);
+        $mform->setType('description', PARAM_RAW);
+        $mform->addElement('text', 'idnumber', 'Group ID No');
+        $mform->setType('idnumber', PARAM_TEXT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+        $this->add_action_buttons(true, 'create group');
     }
 
-    public function setEditorDefault($content, $format)
+    public function setEditorDefault($description, $format)
     {
-        $this->_form->setDefault('feedback', [
-            'text' => $content,
+        $this->_form->setDefault('description', [
+            'text' => $description,
             'format' => $format
         ]);
     }
@@ -56,10 +60,6 @@ class feedback_form extends \moodleform
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty($data['content'])) {
-            $errors['content'] = get_string('error_required', 'local_esupervision');
-        }
         return $errors;
     }
 }
-

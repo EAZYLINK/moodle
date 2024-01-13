@@ -1,40 +1,94 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/esupervision/db" VERSION="20231110" COMMENT="XMLDB file for Moodle local/esupervision"
+<XMLDB PATH="local/esupervision/db" VERSION="20240113" COMMENT="XMLDB file for Moodle local/esupervision"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="esupervision_projecttopics" COMMENT="Esupervision project table">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="true" COMMENT="primary key"/>
-        <FIELD NAME="topic" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="project topic"/>
-        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="topic description"/>
-        <FIELD NAME="studentid" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="student id"/>
-        <FIELD NAME="status" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="topic status"/>
-        <FIELD NAME="timecreated" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="time created"/>
-        <FIELD NAME="timemodified" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="time modified"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-    </TABLE>
-    <TABLE NAME="esupervision_projectproposal" COMMENT="esupervision project proposal table">
+    <TABLE NAME="esupervision_proposals" COMMENT="esupervision proposals table">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="studentid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="supervisorid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="filename" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="format" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="studentid" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="status" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="id" TYPE="primary" FIELDS="id" COMMENT="primary key"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="esupervision_comments" COMMENT="esupervision comments table">
+    <TABLE NAME="esupervision_reports" COMMENT="esupervision reports table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="format" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="studentid" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="id" TYPE="primary" FIELDS="id" COMMENT="primary key"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="esupervision_topics" COMMENT="esupervision topics table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="format" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="studentid" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="id" TYPE="primary" FIELDS="id" COMMENT="primary key"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="esupervision_grades" COMMENT="esupervision grades table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="studentid" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="attendance" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="punctuality" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="attentiontoinstruction" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="turnover" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="resourcefulness" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="attitudetowork" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="supervisorid" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="total" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="studentid" TYPE="unique" FIELDS="studentid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="supervisorid" UNIQUE="false" FIELDS="supervisorid"/>
+        <INDEX NAME="id" UNIQUE="false" FIELDS="id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="esupervision_groups" COMMENT="esupervision groups table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="supervisorid" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="format" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="idnumber" TYPE="int" LENGTH="9" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="id" TYPE="primary" FIELDS="id" COMMENT="Primary key"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="esupervision_feedbacks" COMMENT="esupervision feedbacks table">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="submissionid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
@@ -48,13 +102,12 @@
         <KEY NAME="id" TYPE="primary" FIELDS="id" COMMENT="Primary key"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="esupervision_projectreports" COMMENT="esupervision project reports table">
+    <TABLE NAME="esupervision_students" COMMENT="esupervision students table">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="topic" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="studentid" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="status" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="studentid" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="assignedby" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>

@@ -35,69 +35,44 @@ class grading_form extends \moodleform
     {
         $mform = $this->_form;
         $attributes = array(
-            'Excellent' => 20,
-            'Good' => 15,
-            'Average' => 10,
-            'Poor' => 5
+           5 => 'A',
+           4 => 'B',
+           3 => 'C',
+           2 => 'D',
+           0 => 'F'
         );
-        $mform->addElement('header', 'header', 'Grading Form: (Excellent = 20, Good = 15, Average = 10, Poor = 5)');
-        $mform->addElement('text', 'student_id', get_string('student_id', 'local_esupervision'), 'maxlength="100" size="30"');
-        $mform->addRule('student_id', null, 'required', null, 'client');
-        $mform->setType('student_id', PARAM_NOTAGS);
+        $studentlist = $this->_customdata['studentlist'];
+        $mform->addElement('header', 'header', 'Grading Form: (A = 5, B = 4, C = 3, D = 2, F=0)');
+        $mform->addElement('select', 'student', 'student', $studentlist);
+        $mform->addRule('student', null, 'required', null, 'client');
+        $mform->setType('student', PARAM_NOTAGS);
         $mform->addElement('select', 'attendance', get_string('attendance', 'local_esupervision'), $attributes);
         $mform->addRule('attendance', null, 'required', null, 'client');
         $mform->setType('attendance', PARAM_NOTAGS);
-        // $mform->addElement('select', 'student', get_string('student', 'local_esupervision'), $this->users);
-        // $mform->addRule('student', null, 'required', null, 'client');
-        // $mform->setType('student', PARAM_NOTAGS);
         $mform->addElement('select', 'punctuality', get_string('punctuality', 'local_esupervision'), $attributes);
         $mform->addRule('punctuality', null, 'required', null, 'client');
         $mform->setType('punctuality', PARAM_NOTAGS);
-        $mform->addElement('select', 'attention_to_instruction', get_string('attention', 'local_esupervision'), $attributes);
-        $mform->addRule('attention_to_instruction', null, 'required', null, 'client');
-        $mform->setType('attention_to_instruction', PARAM_NOTAGS);
-        $mform->addElement('select', 'turnover_to_work', get_string('turnover', 'local_esupervision'), $attributes);
-        $mform->addRule('turnover_to_work', null, 'required', null, 'client');
-        $mform->setType('turnover_to_work', PARAM_NOTAGS);
+        $mform->addElement('select', 'attentiontoinstruction', get_string('attention', 'local_esupervision'), $attributes);
+        $mform->addRule('attentiontoinstruction', null, 'required', null, 'client');
+        $mform->setType('attentiontoinstruction', PARAM_NOTAGS);
+        $mform->addElement('select', 'turnover', get_string('turnover', 'local_esupervision'), $attributes);
+        $mform->addRule('turnover', null, 'required', null, 'client');
+        $mform->setType('turnover', PARAM_NOTAGS);
+        $mform->addElement('select', 'attitudetowork', get_string('attitude', 'local_esupervision'), $attributes);
+        $mform->addRule('attitudetowork', null, 'required', null, 'client');
+        $mform->setType('attitudetowork', PARAM_NOTAGS);
         $mform->addElement('select', 'resourcefulness', get_string('resourcefulness', 'local_esupervision'), $attributes);
         $mform->addRule('resourcefulness', null, 'required', null, 'client');
         $mform->setType('resourcefulness', PARAM_NOTAGS);
-        $mform->addElement('select', 'attitude_to_work', get_string('attitude', 'local_esupervision'), $attributes);
-        $mform->addRule('attitude_to_work', null, 'required', null, 'client');
-        $mform->setType('attitude_to_work', PARAM_NOTAGS);
-        $mform->addElement('textarea', 'comment', get_string('comment', 'local_esupervision'), 'wrap="virtual" rows="10" cols="5"');
+        $mform->addElement('textarea', 'comment', get_string('comment', 'local_esupervision'), 'wrap="virtual" rows="5" cols="4"');
         $mform->addRule('comment', null, 'required', null, 'client');
         $mform->setType('comment', PARAM_NOTAGS);
-        $this->add_action_buttons(true, 'Submit');
+        $this->add_action_buttons(true, 'Submit grade');
     }
 
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty($data['student_id'])) {
-            $errors['student_id'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['attendance'])) {
-            $errors['attendance'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['punctuality'])) {
-            $errors['punctuality'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['attention_to_instruction'])) {
-            $errors['attention_to_instruction'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['turnover_to_work'])) {
-            $errors['turnover_to_work'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['resourcefulness'])) {
-            $errors['resourcefulness'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['attitude_to_work'])) {
-            $errors['attitude_to_work'] = get_string('error_required', 'local_esupervision');
-        }
-        if (empty($data['comment'])) {
-            $errors['comment'] = get_string('error_required', 'local_esupervision');
-        }
         return $errors;
     }
 }

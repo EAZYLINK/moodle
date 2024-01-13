@@ -27,43 +27,45 @@ require_once(__DIR__ . '/lib.php');
 require_login();
 
 $context = context_system::instance();
-$PAGE->set_url('/local/esupervision/grading.php');
+$PAGE->set_url('/local/esupervision/groups.php');
 $PAGE->set_context($context);
-$PAGE->set_title('Project Scores System');
+$PAGE->set_title('Project group');
 $PAGE->set_pagelayout('standard');
-$PAGE->navbar->add('Esupervision', new moodle_url('/local/esupervision/index.php'));
-$PAGE->navbar->add('Project Score', new moodle_url('/local/esupervision/grading.php'));
+$PAGE->navbar->add('Dashboard', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Group', new moodle_url('/local/esupervision/groups.php'));
 
 $allowgrading = has_capability('local/esupervision:gradeproject', $context, $user = null, $doanything = true);
 $viewgrading = has_capability('local/esupervision:viewgrade', $context, $user = null, $doanything = true);
 $id = optional_param('id', null, PARAM_INT);
 $action = optional_param('action', null, PARAM_ALPHA);
+$htmlstring = '<a href="/local/esupervision/groupassign.php" class="btn btn-primary mb-4">Assign student</a>';
 
 $data= get_all_users();
-$studentlist = [];
+$userlist = [];
 foreach ($data as $value) {
     $fullname = $value->firstname .' '. $value->lastname;
-    $studentlist[] = $fullname;
+    $userlist[] = $fullname;
 }
-$grade_form = new \local_esupervision\form\grading_form(null, ['studentlist' => $studentlist]);
+$group_form = new \local_esupervision\form\group_form(null, ['userlist' => $userlist]);
 
 echo $OUTPUT->header();
 
 if($allowgrading) {
-    $grade_form->display();
+    echo $htmlstring;
+    $group_form->display();
     if($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if($grade_form->is_cancelled()) {
+        if($group_form->is_cancelled()) {
             redirect(
                 $PAGE->url,
                 'submission cancelled',
                 null,
                 \core\output\notification::NOTIFY_WARNING
             );
-        } elseif($data = $grade_form->get_data()) {
-            $name = $studentlist[$data->student];
+        } elseif($data = $group_form->get_data()) {
+            $name = $userlist[$data->supervisor];
             $user = get_user_by_name($name);
-            $data->studentid = $user->id;
-            $record_exists = record_exists('esupervision_grades', 'studentid', $data->studentid);
+            $data->supervisorid = $user->id;
+            $record_exists = record_exists('esupervision_groups', 'supervisorid', $data->supervisorid);
             if ($record_exists) {
                 redirect(
                     $PAGE->url,
@@ -72,24 +74,11 @@ if($allowgrading) {
                     \core\output\notification::NOTIFY_ERROR
                 );
             }
-            $data->total = $data->attendance + $data->punctuality 
-                            + $data->attentiontoinstruction + $data->turnover
-                            + $data->attitudetowork + $data->resoursefulness;
-            $grade = '';
-            if ($data->total >= 24) {
-                $grade = 'A';
-            } elseif ($data->total >= 18 && $data->total < 24) {
-                $grade = 'B';
-            } elseif ($data->total >= 12 && $data->total < 18) {
-                $grade = 'C';
-            } elseif ($data->total >= 6 && $data->total < 12) {
-                $grade = 'D';
-            } elseif ($data->total < 6) {
-                $grade = 'F';
-            }
-            $data->grade = $grade;
             $data->supervisorid = $USER->id;
-            $gradeid = submit_grade($data);
+            ['text' => $content, 'format' => $format] = $data->description;
+            $data->description = $content;
+            $data->format = $format;
+            $gradeid = submit_group($data);
             redirect(
                 $PAGE->url,
                 'submitted successfully!',
@@ -99,23 +88,23 @@ if($allowgrading) {
         }
     } elseif($_SERVER['REQUEST_METHOD'] == 'GET') {
         if (!$action) {
-            $grades = get_students_grade($USER->id);
-            foreach($grades as $grade) {
-                $user = get_user_by_id($grade->studentid);
-                $grade->studentname = $user->firstname . ' ' .$user->lastname;
+            $groups = get_groups();
+            foreach($groups as $group) {
+                $user = get_user_by_id($group->supervisorid);
+                $group->supervisorname = $user->firstname . ' ' .$user->lastname;
             }
             $data = [
                 'issupervisor' => true,
-                'grades' => array_values($grades)
+                'groups' => array_values($groups)
             ];
-            echo $OUTPUT->render_from_template('local_esupervision/grades', $data);
+            echo $OUTPUT->render_from_template('local_esupervision/groups', $data);
         }
         elseif($action == 'delete' && $id) {
-            $deleteid = delete_grade($id);
+            $deleteid = delete_group($id);
             if ($deleteid) {
                 redirect(
                     $PAGE->url,
-                    'grade deleted successfully!',
+                    'group deleted successfully!',
                     null,
                     \core\output\notification::NOTIFY_SUCCESS
                 );
@@ -124,12 +113,17 @@ if($allowgrading) {
     }
 } 
 if($viewgrading) {
-    $grade = get_grade_by_studentid($USER->id);
-    $data = [
-        'isstudent' => true,
-        'grade' => array_values($grade)
-    ];
-    echo $OUTPUT->render_from_template('local_esupervision/grades', $data);
+    $student = get_group_student_by_studentid($USER->id);
+    if ($student) {
+        $group = get_group_by_id($student->groupid);
+        $supervisor = get_user_by_id($group->supervisorid);
+        $group->supervisor = $supervisor->firstname .' '. $supervisor->lastname;
+        $data = [
+            'isstudent' => true,
+            'group' => $group
+        ];
+        echo $OUTPUT->render_from_template('local_esupervision/groups', $data);
+    }
 }
 
 

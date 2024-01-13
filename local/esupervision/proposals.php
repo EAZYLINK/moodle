@@ -32,7 +32,7 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_title('Project proposal');
 $PAGE->set_heading('Project proposal');
 $PAGE->set_url("/local/esupervision/proposals.php");
-$PAGE->navbar->add('Esupervision', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Dashboard', new moodle_url('/local/esupervision/index.php'));
 $PAGE->navbar->add('Project proposal', new moodle_url('/local/esupervision/proposals.php'));
 global $home_url, $download_url;
 $editoroptions = array(

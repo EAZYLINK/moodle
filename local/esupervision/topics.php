@@ -32,6 +32,8 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title('Topics');
 $PAGE->set_url("/local/esupervision/topics.php");
+$PAGE->navbar->add('Dashboard', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Project Topic', new moodle_url('/local/esupervision/topics.php'));
 
 
 $context = context_user::instance($USER->id);
@@ -55,15 +57,6 @@ $topicform = new \local_esupervision\form\topic_form(null, ['editoroptions' => $
 $feedback_form = new \local_esupervision\form\feedback_form(null, ['feedbackoptions' => $editoroptions]);
 
 echo $OUTPUT->header();
-
-if (!$action) {
-    $home_url = new moodle_url('/local/esupervision/index.php');
-} elseif ($action) {
-    $home_url = new moodle_url('/local/esupervision/topics.php');
-}
-$htmlstring = '<a href="' . $home_url . '" class="btn btn-primary mb-4">Back</a>';
-
-echo $htmlstring;
 
 if ($allowpost) {
     if (!$action) {

@@ -30,7 +30,7 @@ require_login();
 $PAGE->set_url('/local/esupervision/forum.php');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('standard');
-$PAGE->navbar->add('Home', new moodle_url('/local/esupervision/index.php'));
+$PAGE->navbar->add('Dashboard', new moodle_url('/local/esupervision/index.php'));
 $PAGE->navbar->add('Discussion Forum', new moodle_url('/local/esupervision/forum.php'));
 
 $editoroptions = array(

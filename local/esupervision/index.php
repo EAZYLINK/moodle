@@ -59,9 +59,14 @@ $chat->title = 'Chat forum';
 $chat->content = "view and manage forum chats";
 $chat->url = new moodle_url("/local/esupervision/forum.php");
 
+$group = new stdClass();
+$group->title = 'Group';
+$group->content = "view and manage forum group";
+$group->url = new moodle_url("/local/esupervision/groups.php");
+
 
 $name = $USER->firstname . " " . $USER->lastname;
-$pages = array($topic, $proposal, $report, $grade, $chat);
+$pages = array($topic, $proposal, $report, $grade, $chat, $group);
 $data = array(
   "name" => $name,
   "pages" => array_values($pages)

@@ -125,8 +125,8 @@ $capabilities = array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
-            'student' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
+            'student' => CAP_PREVENT,
+            'editingteacher' => CAP_PREVENT,
             'manager' => CAP_ALLOW
         )
     ),
@@ -155,8 +155,8 @@ $capabilities = array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
-            'student' => CAP_PREVENT,
-            'editingteacher' => CAP_ALLOW,
+            'student' => CAP_ALLOW,
+            'editingteacher' => CAP_PREVENT,
             'manager' => CAP_ALLOW
         )
     ),
@@ -181,7 +181,39 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'student' => CAP_PREVENT,
+            'editingteacher' => CAP_PREVENT,
+        )
+    ),
+        'local/esupervision:managegroup' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'student' => CAP_PREVENT,
+            'editingteacher' => CAP_PREVENT,
+
+        )
+    ),
+        'local/esupervision:viewgroups' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'student' => CAP_PREVENT,
+            'editingteacher' => CAP_ALLOW,
+
+        )
+    ),
+        'local/esupervision:viewgroup' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'student' => CAP_PREVENT,
+            'editingteacher' => CAP_PREVENT,
+
         )
     ),
 );

@@ -1,0 +1,93 @@
+{{!
+This file is part of Moodle - http://moodle.org/
+
+Moodle is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Moodle is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Moodle. If not, see
+<http: //www.gnu.org/licenses />.
+}}
+{{!
+@template local_esupervision/grades
+
+TODO describe template projects
+
+Example context (json):
+{
+    grades: {
+        id: 1,
+        studentname: "John Doe",
+        title: "Project title",
+        attendance: 10,
+        punctuality: 10,
+        quality_of_work: 10,
+        attitude_to_work: 10,
+        resourcefulness: 10,
+        total: 100,
+    }
+}
+}}
+{{#issupervisor}}
+<div style="height: 300px; overflow-y: auto;">
+<table class="table">
+    <caption class="text-center">
+        project Groups
+    </caption>
+    <tbody>
+        <tr>
+            <th>ID</th>
+            <th>Group Name</th>
+            <th>Supervisor</th>
+            <th>Description</th>
+            <th>ID NO</th>
+            <th>Action</th>
+        </tr>
+        {{#groups}}
+        <tr>
+            <td>{{ id }}</td>
+            <td>{{ name }}</td>
+            <td>{{ supervisorname}}</td>
+            <td>{{{ description }}}</td>
+            <td>{{ idnumber }}</td>
+            <td style="white-space: nowrap;">
+                <a href="?action=edit&id={{ id }}" class="btn"><img src="assets/edit.png"></a>
+                <a href="?action=delete&id={{ id }}" class="btn"><img src="assets/delete.png"></a>
+            </td>
+        </tr>
+        {{/groups}}
+    </tbody>
+</table>
+</div>
+{{/issupervisor}}
+
+{{#isstudent}}
+<div class="container">
+    {{#group}}
+    <div class="card p-5">
+        <div class="card-header text-center"><strong>Assigned Group</strong></div>
+        <div class="card-body">
+            <div class="card-text row p-2">
+            <strong class="col-3">name:  </strong>
+            <div class="col">{{{ name }}}</div>
+            </div>
+            <div class="card-text row p-2">
+            <strong class="col-3">Description:  </strong>
+            <div class="col">{{{ description }}}</div>
+            </div>
+            <div class="card-text row p-2">
+            <strong class="col-3">Supervisor:  </strong>
+            <div class="col">{{{ supervisor }}}</div>
+            </div>
+        </div>
+    </div>
+    {{/group}}
+</div>
+{{/isstudent}}

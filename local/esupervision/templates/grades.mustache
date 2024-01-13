@@ -36,88 +36,83 @@ Example context (json):
 }
 }}
 {{#issupervisor}}
+<div style="height: 300px; overflow-y: auto;">
 <table class="table">
     <caption class="text-center">
         Students' grades
     </caption>
     <tbody>
         <tr>
-            <th>SN</th>
+            <th>ID</th>
             <th>Student Name</th>
-            <th>Project Title</th>
             <th>Attendance</th>
             <th>Punctuality</th>
-            <th>Quality of work</th>
+            <th>Attention to instruction</th>
+            <th>Turnover of work</th>
             <th>Attitude to work</th>
-            <th>Resourcesfullnes</th>
+            <th>Resourcesfulness</th>
             <th>Total Score</th>
             <th>Grade</th>
+            <th>Comment</th>
+            <th>Action</th>
         </tr>
         {{#grades}}
         <tr>
             <td>{{ id }}</td>
             <td>{{ studentname }}</td>
-            <td>{{ title }}</td>
             <td>{{ attendance}}</td>
             <td>{{ punctuality }}</td>
-            <td>{{ quality_of_work }}</td>
-            <td>{{ attitude_to_work }}</td>
+            <td>{{ attentiontoinstruction }}</td>
+            <td>{{ turnover }}</td>
+            <td>{{ attitudetowork }}</td>
             <td>{{ resourcefulness }}</td>
             <td>{{ total }}</td>
             <td>{{ grade }}</td>
-            <td>
-                <button class="btn"><a href="?action=view&id={{ id }}">view</a></button>
+            <td>{{ comment }}</td>
+            <td style="white-space: nowrap;">
+                <a href="?action=edit&id={{ id }}" class="btn"><img src="assets/edit.png"></a>
+                <a href="?action=delete&id={{ id }}" class="btn"><img src="assets/delete.png"></a>
             </td>
         </tr>
         {{/grades}}
     </tbody>
 </table>
-{{/issupervisor}}
-
-{{^issupervisor}}
-<div class="container">
-    <h4 class="mt-5">Submissions</h4>
-    <div class="row">
-        {{#grades}}
-        <div class="col-3 card mx-3">
-            <div class="card-body">
-                <div class="card-text my-2"><span style="font-weight: bold;">Title: </span> {{ title }}</div>
-                <div class="card-text"><span style="font-weight: bold;">Description: </span> {{ description }}</div>
-                <small class="card-text"><span style="font-weight: bold;">timecreated: </span>
-                    {{timecreated}}</small><br>
-                <small class="card-text"><span style="font-weight: bold;">timemodified: </span>
-                    {{timemodified}}</small><br>
-                <a href="{{url}}">download report</a>
-                <div class="text-right">
-                    <a href="?action=edit&id={{ id }}" class="btn"><img src="assets/edit.png"></a>
-                    <a href="?action=delete&id={{ id }}" class="btn"><img src="assets/delete.png"></a>
-                </div>
-            </div>
-            {{#comments}}
-            <div>Supervisor's comment: {{comment}}</div>
-            {{/comments}}
-        </div>
-        {{/grades}}
-    </div>
 </div>
 {{/issupervisor}}
 
-{{#viewreport}}
+{{#isstudent}}
 <div class="container">
-    <h4 class="mt-5">Report details</h4>
-    {{#report}}
-    <div class="card mb-5 w-50">
-        <div class="card-body">
-            <div class="card-title"><span style="font-weight: bold;">Title:</span> {{ title }}</div>
-            <div class="card-text">Description: {{ description }}</div>
-            <div class="card-text">Student name: {{ studentname }}</div>
-            <small class="card-text">Last modified: {{timemodified}}</small><br>
-            <a href="{{url}}">download report</a>
-            <div class="text-center mt-3">
-                <a href="?action=approve&id={{ id }}" class="btn btn-outline-primary mx-3">Approve report</a>
-                <a href="?action=reject&id={{ id }}" class="btn btn-outline-danger mx-3">Reject report</a>
-            </div>
-        </div>
-        {{/report}}
-    </div>
-    {{/viewreport}}
+    <div class="row">
+    <table class="table">
+    <caption class="text-center">
+        Project Performance
+    </caption>
+    <tbody>
+        <tr>
+            <th>Attendance</th>
+            <th>Punctuality</th>
+            <th>Attention to instruction</th>
+            <th>Turnover of work</th>
+            <th>Attitude to work</th>
+            <th>Resourcesfulness</th>
+            <th>Total Score</th>
+            <th>Grade</th>
+            <th>Comment</th>
+        </tr>
+        {{#grade}}
+        <tr>
+            <td>{{ attendance}}</td>
+            <td>{{ punctuality }}</td>
+            <td>{{ attentiontoinstruction }}</td>
+            <td>{{ turnover }}</td>
+            <td>{{ attitudetowork }}</td>
+            <td>{{ resourcefulness }}</td>
+            <td>{{ total }}</td>
+            <td>{{ grade }}</td>
+            <td>{{ comment }}</td>
+        </tr>
+        {{/grade}}
+    </tbody>
+</table>
+</div>
+{{/isstudent}}
